@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Caja Cardelfi | Calacoto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --naranja: #FF8C00; --azul: #001f3f; --negro: #1a1a1a; --blanco: #ffffff; }
+        body { background-color: var(--blanco); font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: var(--azul) !important; border-bottom: 4px solid var(--naranja); }
+        .header-box { background-color: var(--negro); color: var(--naranja); padding: 20px; border-radius: 10px; }
+        .table-resumen thead { background-color: var(--azul); color: white; }
+        .bg-naranja-soft { background-color: #fff3e0; }
+        .text-naranja { color: var(--naranja); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark mb-4">
+    <div class="container"><a class="navbar-brand" href="/">← VOLVER AL INVENTARIO</a></div>
+</nav>
+
+<div class="container">
+    <div class="header-box mb-4 shadow text-center">
+        <h2>REPORTE DE CAJA DIARIA</h2>
+    </div>
+
+    <div class="card shadow mb-5">
+        <div class="card-header bg-dark text-white fw-bold">RESUMEN DE VENTAS Y RECAUDACIÓN</div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-resumen mb-0">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th class="text-center">Venta Planilla (Esperado)</th>
+                        <th class="text-center">Total Recaudado (Real)</th>
+                        <th class="text-center">Diferencia</th>
+                        <th class="text-center">Saldo Final (Post-Gastos)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in registros %}
+                    <tr>
+                        <td><strong>{{ r.fecha|date:"d/m/Y" }}</strong></td>
+                        <td class="text-center text-primary">Bs. {{ r.calcular_ventas_planilla }}</td>
+                        <td class="text-center bg-naranja-soft">Bs. {{ r.total_ingreso_real }}</td>
+                        <td class="text-center fw-bold {% if r.diferencia < 0 %}text-danger{% else %}text-success{% endif %}">
+                            Bs. {{ r.diferencia }}
+                        </td>
+                        <td class="text-center text-naranja">Bs. {{ r.saldo_final }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h4 class="text-naranja border-bottom border-dark pb-2">DETALLE DE GASTOS</h4>
+            <div class="card shadow-sm">
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Concepto / Descripción</th>
+                            <th class="text-end">Monto (Bs.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in registros %}
+                            {% for gasto in r.detalles_gastos.all %}
+                            <tr>
+                                <td>{{ gasto.descripcion }}</td>
+                                <td class="text-end text-danger font-monospace">- {{ gasto.monto }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center text-muted">Sin gastos registrados hoy.</td></tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 py-4 text-center bg-dark text-white">
+    <small>Sistema de Control Cardelfi - Calacoto &copy; 2026</small>
+</footer>
+
+</body>
+</html>

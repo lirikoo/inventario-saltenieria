@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido | Cardelfi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --naranja: #FF8C00; --azul: #001f3f; --blanco: #ffffff; --dorado: #FFD700; }
+        body { 
+            background-color: var(--azul); 
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            font-family: 'Segoe UI', sans-serif; margin: 0;
+            overflow: hidden;
+        }
+        .welcome-container { text-align: center; color: var(--blanco); animation: fadeIn 1s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .img-central {
+            width: 250px; height: 250px; border-radius: 50%;
+            border: 6px solid var(--naranja); object-fit: cover;
+            margin-bottom: 25px; box-shadow: 0 0 30px rgba(255,140,0,0.4);
+        }
+        .user-welcome { color: var(--dorado); font-weight: 300; margin-bottom: 10px; }
+        .btn-ingresar {
+            background-color: var(--naranja); color: white; font-weight: bold;
+            padding: 15px 50px; border-radius: 50px; text-decoration: none;
+            transition: 0.3s; border: 2px solid var(--naranja);
+            display: inline-block; font-size: 1.1rem;
+        }
+        .btn-ingresar:hover { 
+            background-color: transparent; color: var(--naranja); 
+            transform: scale(1.05); box-shadow: 0 0 20px rgba(255,140,0,0.5);
+        }
+        .logout-link {
+            display: block; margin-top: 25px; color: #aaa; 
+            text-decoration: none; font-size: 0.9rem;
+        }
+        .logout-link:hover { color: #ff4d4d; }
+    </style>
+</head>
+<body>
+
+<div class="welcome-container">
+    <img src="{% static 'images/img.jpg' %}" alt="Logo Cardelfi" class="img-central">
+    
+    <p class="user-welcome h4">Bienvenido, {{ user.username|upper }}</p>
+    <h1 class="display-4 fw-bold mb-3">SISTEMA CARDELFI</h1>
+    
+    {% if user.is_staff %}
+        <p class="mb-5 text-info">Modo Administrador Activo</p>
+    {% else %}
+        <p class="mb-5 text-white-50">Acceso a Planillas Diarias</p>
+    {% endif %}
+    
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="{% url 'seleccion_sucursal' %}" class="btn-ingresar shadow">
+            {% if user.is_staff %}
+                GESTIONAR SUCURSALES
+            {% else %}
+                INGRESAR A MI PLANILLA
+            {% endif %}
+        </a>
+    </div>
+
+    <a href="{% url 'logout' %}" class="logout-link">Cerrar Sesión</a>
+</div>
+
+</body>
+</html>

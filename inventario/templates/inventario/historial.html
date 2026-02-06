@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Cierres - Cardelfi</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 40px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        h2 { color: #001f3f; border-bottom: 3px solid #FF8C00; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background-color: #001f3f; color: #FF8C00; text-align: left; padding: 12px; font-size: 13px; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        tr:hover { background-color: #f9f9f9; }
+
+        /* Botón de Imprimir */
+        .btn-print {
+            background-color: #FF8C00;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        .btn-print:hover { background-color: #e67e00; }
+        
+        .badge { background: #eee; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Historial de Ventas Diario</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Sucursal</th>
+                <th>Monto en Caja</th>
+                <th style="text-align: center;">Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in cierres %}
+            <tr>
+                <td><strong>{{ c.fecha|date:"d/m/Y" }}</strong></td>
+                <td><span class="badge">{{ c.sucursal.nombre|upper }}</span></td>
+                <td>{{ c.efectivo|add:c.qr|add:c.tarjetero }} Bs</td>
+                <td style="text-align: center; white-space: nowrap;">
+                    <a href="{% url 'ver_planilla' %}?caja_id={{ c.id }}" class="btn-view" target="_blank">
+                         VER
+                    </a>
+
+                    <a href="{% url 'generar_pdf' %}?caja_id={{ c.id }}" class="btn-print" style="margin-left: 10px;">
+                         IMPRIMIR
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="text-align: center; color: #999;">No hay cierres registrados aún.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 20px;">
+        <a href="{% url 'seleccion_sucursal' %}" style="color: #001f3f; text-decoration: none; font-size: 13px;">← Volver al Panel</a>
+    </div>
+</div>
+
+</body>
+</html>

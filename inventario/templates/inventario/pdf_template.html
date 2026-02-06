@@ -1,0 +1,137 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Tipografía y colores base */
+        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; font-size: 11px; margin: 20px; }
+        
+        /* Título Principal */
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { 
+            color: #2c3e50; 
+            font-size: 22px; 
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        .header p { 
+            font-weight: bold; 
+            color: #555; 
+            border-top: 2px solid #FF8C00; 
+            display: inline-block; 
+            padding-top: 5px;
+            text-transform: uppercase;
+        }
+
+        /* Tabla Principal */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th { 
+            background-color: #001f3f; 
+            color: #FF8C00; 
+            padding: 8px 4px; 
+            text-transform: uppercase; 
+            font-size: 9px;
+            border: 1px solid #ddd;
+        }
+        td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+        
+        /* Estilo para las filas de Categoría */
+        .categoria-header {
+            background-color: #f8f9fa; /* Gris muy claro para no separar tanto */
+            font-weight: bold;
+            color: #001f3f;
+            text-align: left;
+            font-size: 10px;
+        }
+        .categoria-header td {
+            padding: 4px 15px;
+            border-bottom: 1.5px solid #FF8C00; /* Línea naranja delgada para distinguir */
+        }
+
+        .text-left { text-align: left; padding-left: 15px; font-weight: bold; }
+
+        /* Cuadro de Resumen */
+        .contenedor-resumen { width: 100%; overflow: hidden; }
+        .resumen { 
+            width: 300px; 
+            float: right; 
+            border: 1.5px solid #000;
+        }
+        .resumen table { margin-bottom: 0; border: none; }
+        .resumen td { 
+            border: 0.5px solid #ccc; 
+            padding: 6px; 
+            font-weight: bold;
+            text-align: right;
+        }
+        .resumen td:first-child { text-align: center; width: 55%; background-color: #f9f9f9; }
+
+        /* Colores de estado */
+        .faltante { color: #d9534f; } 
+        .sobrante { color: #007bff; } 
+        .cuadrado { color: #28a745; }  
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CARDELFI - CONTROL DIARIO</h1>
+        <p>SUCURSAL: {{ cierre.sucursal.nombre|upper }} | FECHA: {{ cierre.fecha }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 35%;">PRODUCTO</th>
+                <th>PROD</th><th>ENT</th><th>BAJA</th><th>TRAS</th><th>SALE</th><th>TOTAL BS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fila in filas %}
+                {# Si la categoría cambia, insertamos una fila de encabezado #}
+                {% ifchanged fila.producto.categoria.nombre %}
+                <tr class="categoria-header">
+                    <td colspan="7">
+                        {{ fila.producto.categoria.nombre|upper|default:"OTROS PRODUCTOS" }}
+                    </td>
+                </tr>
+                {% endifchanged %}
+
+                <tr>
+                    <td class="text-left">{{ fila.producto.nombre }}</td>
+                    <td>{{ fila.reg.produccion|default:"-" }}</td>
+                    <td>{{ fila.reg.entrada|default:"-" }}</td>
+                    <td>{{ fila.reg.baja|default:"-" }}</td>
+                    <td>{{ fila.reg.traspaso|default:"-" }}</td>
+                    <td>{{ fila.reg.salida|default:"-" }}</td>
+                    <td>
+                        {% if fila.reg.salida and fila.reg.salida > 0 %}
+                            {{ fila.reg.salida|multiply:fila.producto.precio_unitario|floatformat:1 }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="contenedor-resumen">
+        <div class="resumen">
+            <table>
+                <tr>
+                    <td>VENTA ESPERADA</td>
+                    <td>{{ total_ventas|floatformat:2 }} Bs</td>
+                </tr>
+                <tr>
+                    <td>TOTAL EN CAJA</td>
+                    <td>{{ total_caja|default:"-" }} Bs</td>
+                </tr>
+                <tr class="{% if diferencia < 0 %}faltante{% elif diferencia > 0 %}sobrante{% else %}cuadrado{% endif %}">
+                    <td>DIFERENCIA</td>
+                    <td>{{ diferencia|floatformat:2 }} Bs</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

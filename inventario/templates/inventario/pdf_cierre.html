@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page { size: a4; margin: 1cm; }
+        body { font-family: 'Helvetica', sans-serif; font-size: 9px; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #001f3f; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        th { background-color: #001f3f; color: white; padding: 4px; border: 1px solid #000; }
+        td { border: 1px solid #ccc; padding: 3px; text-align: center; }
+        .seccion-titulo { background-color: #FF8C00; color: white; font-weight: bold; text-align: left; padding-left: 5px; }
+        
+        /* Contenedor para dos columnas (Gastos y Totales) */
+        .footer-container { width: 100%; }
+        .col-gastos { width: 60%; float: left; }
+        .col-totales { width: 35%; float: right; border: 2px solid #FF8C00; padding: 5px; border-radius: 5px; }
+        .firma { margin-top: 50px; text-align: right; border-top: 1px solid #000; width: 200px; float: right; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 style="margin:0;">PLANILLA DE CONTROL DIARIO - CARDELFI</h1>
+        <p style="margin:0;">Sucursal: {{ sucursal }} | Fecha: {{ fecha }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>PRODUCTO</th>
+                <th>PROD</th><th>ENT</th><th>BAJA</th><th>TRASP</th><th>SALE</th><th>TOTAL (Bs)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="seccion-titulo"><td colspan="7">SALTEÑAS</td></tr>
+            <tr>
+                <td>Salteña de Carne</td><td>100</td><td>10</td><td>2</td><td>5</td><td>103</td><td>824.00</td>
+            </tr>
+            <tr class="seccion-titulo"><td colspan="7">BEBIDAS</td></tr>
+            <tr>
+                <td>Coca Cola 500ml</td><td>-</td><td>-</td><td>-</td><td>-</td><td>10</td><td>70.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer-container">
+        <div class="col-gastos">
+            <h3>GASTOS EXTRAS</h3>
+            <table>
+                <tr><th>Descripción</th><th>Monto</th></tr>
+                <tr><td>Limpieza sucursal</td><td>50.00</td></tr>
+                <tr><td>Pago Luz</td><td>120.00</td></tr>
+                <tr><td style="text-align:right"><strong>Total Gastos:</strong></td><td><strong>170.00</strong></td></tr>
+            </table>
+        </div>
+
+        <div class="col-totales">
+            <h3 style="margin-top:0; text-align:center;">REVISIÓN DE CAJA</h3>
+            <p><strong>Venta Bruta:</strong> 894.00 Bs</p>
+            <p><strong>Gastos:</strong> -170.00 Bs</p>
+            <hr>
+            <p style="font-size:12px;"><strong>Monto Esperado:</strong> 724.00 Bs</p>
+            <p><strong>Efectivo/QR:</strong> 724.00 Bs</p>
+            <p style="color: green;"><strong>Diferencia: 0.00 (Cuadrado)</strong></p>
+        </div>
+    </div>
+
+    <div style="clear: both;"></div>
+    <div class="firma">
+        <p style="text-align:center;">Nombre y Firma</p>
+    </div>
+</body>
+</html>
