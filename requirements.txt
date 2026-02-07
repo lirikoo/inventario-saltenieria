@@ -3,3 +3,4 @@ weasyprint
 gunicorn
 whitenoise
 mysqlclient
+dj-database-url
