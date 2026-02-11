@@ -31,7 +31,7 @@ class RegistroDiario(models.Model):
     entrada = models.IntegerField(default=0)
     baja = models.IntegerField(default=0)
     traspaso = models.IntegerField(default=0)
-    salida = models.IntegerField(default=0) # Campo correcto para evitar TypeError
+    salida = models.IntegerField(default=0)
 
 class CajaDiaria(models.Model):
     sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
@@ -44,3 +44,26 @@ class Gasto(models.Model):
     caja = models.ForeignKey(CajaDiaria, on_delete=models.CASCADE, related_name='detalles_gastos')
     descripcion = models.CharField(max_length=200)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
+
+class VentaSalteña(models.Model):
+    OPCIONES_TRASPASO = [
+        ('Dest', 'Destino'),
+        ('Calacoto', 'Calacoto'),
+        ('Mendez', 'Méndez'),
+        ('San Pedro', 'San Pedro'),
+    ]
+    producto = models.CharField(max_length=50)
+    venta = models.IntegerField(default=0)
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
+    fecha = models.DateField(auto_now_add=True)
+
+    @property
+    def total_bs(self):
+        return self.venta * self.precio_unitario
+
+class GastoExtra(models.Model):
+    descripcion = models.CharField(max_length=200)
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
+    fecha = models.DateField(auto_now_add=True)

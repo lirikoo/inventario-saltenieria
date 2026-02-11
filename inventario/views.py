@@ -1,11 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Producto, RegistroDiario, Sucursal, CajaDiaria, Gasto, Categoria
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
+from django.db.models import Sum, F
 
-# Importación de WeasyPrint
+# Modelos (Asegúrate de que estos nombres coincidan con tu models.py)
+from .models import (
+    Producto, RegistroDiario, Sucursal, 
+    CajaDiaria, Gasto, VentaSalteña, GastoExtra
+)
+
+# Importación de WeasyPrint para los reportes
 from weasyprint import HTML
 
 @login_required
@@ -63,22 +69,61 @@ def guardar_registro(request):
 
 @login_required
 def historial_ventas(request):
-    """Esta función evita el error AttributeError en la terminal"""
     cierres = CajaDiaria.objects.all().order_by('-fecha', '-id')
     return render(request, 'inventario/historial.html', {'cierres': cierres})
+
+@login_required
+def registro_ventas(request, sucursal_id):
+    """Vista principal para el registro diario desde el celular"""
+    sucursal = get_object_or_404(Sucursal, id=sucursal_id)
+    hoy = timezone.now().date()
+    
+    # Manejo de GASTOS EXTRAS vía POST
+    if request.method == 'POST' and 'btn_gasto' in request.POST:
+        descripcion = request.POST.get('desc_gasto')
+        monto = request.POST.get('monto_gasto')
+        if descripcion and monto:
+            GastoExtra.objects.create(
+                descripcion=descripcion,
+                monto=monto,
+                sucursal=sucursal
+            )
+            return redirect('registro_ventas', sucursal_id=sucursal.id)
+
+    # Filtrar datos de HOY
+    ventas = VentaSalteña.objects.filter(sucursal=sucursal, fecha=hoy)
+    gastos = GastoExtra.objects.filter(sucursal=sucursal, fecha=hoy)
+
+    # 1. Totales de Ventas (Cantidad e Ingreso Bruto)
+    total_cantidad = ventas.aggregate(total=Sum('venta'))['total'] or 0
+    total_ingreso = sum(v.total_bs for v in ventas)
+
+    # 2. Totales de Gastos
+    total_gastos = gastos.aggregate(total=Sum('monto'))['total'] or 0
+
+    # 3. Saldo Neto (Dinero que debe haber en caja)
+    total_neto = total_ingreso - total_gastos
+
+    context = {
+        'sucursal': sucursal,
+        'ventas': ventas,
+        'gastos': gastos,
+        'total_cantidad': total_cantidad,
+        'total_ingreso': total_ingreso,
+        'total_gastos': total_gastos,
+        'total_neto': total_neto,
+    }
+    return render(request, 'inventario/registro.html', context)
 
 @login_required
 def generar_pdf_estilo_cuaderno(request):
     caja_id = request.GET.get('caja_id')
     cierre = get_object_or_404(CajaDiaria, id=caja_id)
     
-    # 1. Obtener TODOS los productos de esta sucursal específica
-    # Los ordenamos por categoría para que la tabla sea legible
     productos_sucursal = Producto.objects.filter(
         sucursal=cierre.sucursal
     ).select_related('categoria').order_by('categoria__nombre', 'nombre')
 
-    # 2. Obtener los registros que SÍ tienen datos para este día
     registros_existentes = {
         r.producto_id: r 
         for r in RegistroDiario.objects.filter(
@@ -87,42 +132,33 @@ def generar_pdf_estilo_cuaderno(request):
         )
     }
 
-    # 3. Construir la lista "maestra" para la tabla y calcular totales
     filas_tabla = []
     total_ventas_bs = 0
     
     for p in productos_sucursal:
-        reg = registros_existentes.get(p.id) # Buscamos si el producto tiene registro hoy
-        
-        # Si hay registro, sumamos a la venta esperada
+        reg = registros_existentes.get(p.id)
         if reg:
             total_ventas_bs += (reg.salida * p.precio_unitario)
             
-        filas_tabla.append({
-            'producto': p,
-            'reg': reg  # Si no hay registro, esto será None
-        })
+        filas_tabla.append({'producto': p, 'reg': reg})
     
-    # 4. Cálculos finales de caja
     total_caja_real = cierre.efectivo + cierre.qr + cierre.tarjetero
     diferencia = total_caja_real - total_ventas_bs
 
-    # 5. Renderizar el HTML con la nueva lista 'filas'
     html_string = render_to_string('inventario/pdf_template.html', {
         'cierre': cierre,
-        'filas': filas_tabla, # <--- Usamos esta nueva lista
+        'filas': filas_tabla,
         'total_ventas': total_ventas_bs,
         'total_caja': total_caja_real,
         'diferencia': diferencia,
         'fecha_emision': timezone.now(),
     })
 
-    # Crear el PDF con WeasyPrint
     html = HTML(string=html_string)
     pdf = html.write_pdf()
 
     response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="Reporte_{cierre.sucursal.nombre}_{cierre.fecha}.pdf"'
+    response['Content-Disposition'] = f'inline; filename="Reporte_{cierre.sucursal.nombre}.pdf"'
     return response
 
 @login_required
@@ -130,7 +166,6 @@ def ver_planilla_html(request):
     caja_id = request.GET.get('caja_id')
     cierre = get_object_or_404(CajaDiaria, id=caja_id)
     
-    # 1. Obtener productos y registros (Misma lógica que el PDF)
     productos_sucursal = Producto.objects.filter(sucursal=cierre.sucursal).select_related('categoria').order_by('categoria__nombre', 'nombre')
     registros_existentes = {r.producto_id: r for r in RegistroDiario.objects.filter(sucursal=cierre.sucursal, fecha_creacion__date=cierre.fecha)}
 
@@ -145,7 +180,6 @@ def ver_planilla_html(request):
     total_caja_real = cierre.efectivo + cierre.qr + cierre.tarjetero
     diferencia = total_caja_real - total_ventas_bs
 
-    # 2. Renderizamos como una página WEB normal, no como PDF
     return render(request, 'inventario/pdf_template.html', {
         'cierre': cierre,
         'filas': filas_tabla,
@@ -153,5 +187,5 @@ def ver_planilla_html(request):
         'total_caja': total_caja_real,
         'diferencia': diferencia,
         'fecha_emision': timezone.now(),
-        'es_vista_web': True # Usaremos esto para ocultar cosas si es necesario
+        'es_vista_web': True
     })
