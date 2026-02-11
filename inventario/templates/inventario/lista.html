@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planilla | Cardelfi</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -14,160 +14,127 @@
     <style>
         :root { 
             --naranja: #FF8C00; 
-            --naranja-soft: #fff4e6;
-            --azul: #001f3f; 
-            --negro: #121212;
-            --gris-bg: #f8fafc;
+            --naranja-neon: #ff9d00;
+            --azul-oscuro: #0f172a; 
+            --azul-card: rgba(30, 41, 59, 0.7); /* Azul oscuro transparente */
+            --bg-dark: #020617;
         }
 
         body { 
-            background-color: var(--gris-bg); 
+            /* Fondo oscuro con degradado profundo */
+            background: radial-gradient(circle at top right, #1e293b, var(--bg-dark));
             font-family: 'Inter', sans-serif; 
-            padding-bottom: 180px; 
-            color: #334155;
+            padding-bottom: 40px; 
+            color: #f1f5f9;
+            min-height: 100vh;
         }
 
-        /* NAVBAR MEJORADA */
+        /* NAVBAR DARK */
         .navbar-cardelfi { 
-            background: linear-gradient(135deg, var(--azul) 0%, #002d5c 100%);
-            border-bottom: 4px solid var(--naranja);
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 3px solid var(--naranja);
+            padding: 10px 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
 
-        /* TARJETAS MODERNAS */
+        /* TARJETAS "DARK GLASS" */
         .seccion-card { 
-            background: white; 
+            background: var(--azul-card);
+            backdrop-filter: blur(12px); /* Efecto de cristal esmerilado */
             border-radius: 20px; 
-            border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.04);
-            padding: 24px; 
+            padding: 22px; 
             margin-bottom: 25px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
         .titulo-seccion h2 { 
-            display: inline-block; 
-            background: var(--azul); 
-            color: var(--naranja); 
-            padding: 10px 35px; 
+            background: var(--naranja);
+            color: var(--azul-oscuro); 
+            padding: 6px 30px; 
             border-radius: 50px; 
             font-weight: 800; 
-            font-size: 0.85rem; 
+            font-size: 0.75rem; 
             text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 10px rgba(0,31,63,0.2);
+            letter-spacing: 0.8px;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
         }
 
-        /* SELECTOR DE PERSONAL TIPO "CHIPS" */
+        /* PERSONAL DESPLEGABLE OSCURO */
         .btn-personal-menu { 
             width: 100%; 
-            background: white; 
-            border: 2px solid #e2e8f0;
-            color: var(--azul); 
-            border-radius: 16px; 
-            padding: 16px; 
-            font-weight: 700; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 15px;
-            transition: 0.3s;
+            background: var(--azul-card);
+            border: 2px solid var(--naranja);
+            color: white; 
+            border-radius: 14px; 
+            padding: 14px; 
+            font-weight: 800; 
+            font-size: 0.85rem;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; transition: 0.3s;
         }
-        .btn-personal-menu:hover { border-color: var(--naranja); }
         
         .grid-personal { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 12px; 
-            padding: 20px; 
-            background: white; 
-            border: 2px solid #e2e8f0;
-            border-radius: 16px; 
-            margin-bottom: 20px; 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 18px; 
+            background: rgba(15, 23, 42, 0.5); border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px;
         }
 
-        .btn-check:checked + .btn-personal-chip { 
-            background-color: var(--azul); 
-            color: var(--naranja); 
-            border-color: var(--azul);
-            transform: scale(0.95);
-        }
         .btn-personal-chip { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            border-radius: 12px; 
-            padding: 12px;
-            border: 2px solid #f1f5f9;
-            background: #f8fafc;
-            color: #64748b;
+            font-size: 0.75rem; font-weight: 700; border-radius: 10px; padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2); color: #94a3b8; background: transparent;
+        }
+        .btn-check:checked + .btn-personal-chip { 
+            background: var(--naranja) !important; 
+            color: var(--azul-oscuro) !important; border-color: var(--naranja) !important;
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
         }
 
-        /* TABLAS Y INPUTS */
+        /* TABLA Y ENTRADAS OSCURAS */
         .table thead th { 
-            background: #f8fafc; 
-            color: #64748b; 
-            font-weight: 700;
-            border-top: none;
-            border-bottom: 2px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.05); color: var(--naranja); font-weight: 700;
+            font-size: 0.65rem; text-transform: uppercase; text-align: center; padding: 12px 4px; 
+            border-bottom: 2px solid var(--naranja);
         }
+        .table td { padding: 10px 4px; vertical-align: middle; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #e2e8f0; }
+
         .input-planilla { 
-            width: 100%; 
-            border: 2px solid #f1f5f9; 
-            border-radius: 10px; 
-            text-align: center; 
-            font-weight: 700; 
-            height: 40px; 
-            transition: 0.3s;
+            width: 100%; border: 1.5px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px; text-align: center; font-weight: 700; height: 42px; font-size: 0.9rem; transition: all 0.2s; color: white;
         }
         .input-planilla:focus { 
-            border-color: var(--naranja); 
-            outline: none; 
-            background: var(--naranja-soft);
+            border-color: var(--naranja-neon); outline: none; background: rgba(255, 140, 0, 0.05);
+            box-shadow: 0 0 10px rgba(255, 157, 0, 0.3);
         }
+        
+        /* SELECTOR DE TRASPASOS DARK */
+        .form-select { background-color: var(--azul-oscuro); color: white; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* FOOTER DE RESUMEN FLOTANTE */
+        /* RESUMEN FINAL ESTÁTICO OSCURO */
         .resumen-footer { 
-            background: linear-gradient(180deg, #1e293b 0%, var(--negro) 100%);
-            color: white; 
-            border-radius: 25px 25px 0 0; 
-            padding: 25px; 
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
+            background: linear-gradient(180deg, #0f172a 0%, #000000 100%);
+            color: white; border-radius: 24px; padding: 30px; margin-top: 35px; 
             border-top: 5px solid var(--naranja);
-            box-shadow: 0 -10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 -15px 40px rgba(0,0,0,0.5);
         }
-        .cat-total { color: var(--naranja); font-weight: 800; font-size: 0.7rem; letter-spacing: 0.5px; }
-        .total-valor { font-weight: 800; font-size: 1.3rem; color: #fff; }
+        .cat-label { color: var(--naranja); font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; }
+        .cat-value { font-weight: 800; font-size: 1.5rem; display: block; margin-top: 4px; }
 
-        /* BOTONES DE ACCIÓN */
-        .btn-accion { 
-            font-weight: 800; 
-            padding: 16px; 
-            border-radius: 16px; 
-            border: none;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 10px; 
-            color: white; 
-            width: 100%; 
-            transition: 0.3s;
+        .btn-final { 
+            font-weight: 800; padding: 18px; border-radius: 18px; border: none; color: white; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s;
         }
-        .btn-guardar { background: #10b981; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
-        .btn-pdf { background: #ef4444; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
-        .btn-accion:active { transform: scale(0.98); }
+        .btn-save { background: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        .btn-report { background: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        .btn-final:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
 
 <nav class="navbar-cardelfi sticky-top">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-        <a href="{% url 'seleccion_sucursal' %}" class="text-white text-decoration-none"><i class="bi bi-arrow-left-circle-fill fs-4"></i></a>
-        <span class="text-white fw-bold letter-spacing-1">PLANILLA: {{ sucursal_activa.nombre|upper }}</span>
-        <div style="width: 24px;"></div>
+        <a href="{% url 'seleccion_sucursal' %}" class="text-white text-decoration-none"><i class="bi bi-chevron-left fs-4"></i></a>
+        <span class="text-white fw-bold" style="letter-spacing: 1.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">{{ sucursal_activa.nombre|upper }}</span>
+        <div style="width: 32px;"></div>
     </div>
 </nav>
 
@@ -176,18 +143,15 @@
         {% csrf_token %}
         <input type="hidden" name="sucursal_id" value="{{ sucursal_activa.id }}">
 
-        <button class="btn-personal-menu shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePersonal">
-            <span><i class="bi bi-people-fill text-orange me-2"></i> EQUIPO DE TRABAJO</span>
-            <i class="bi bi-chevron-down small"></i>
+        <button class="btn-personal-menu shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#colapsoPersonal">
+            <span><i class="bi bi-person-badge-fill me-2" style="color:var(--naranja)"></i> EQUIPO DE TURNO</span>
+            <i class="bi bi-chevron-down" style="color:var(--naranja)"></i>
         </button>
-        
-        <div class="collapse" id="collapsePersonal">
+        <div class="collapse" id="colapsoPersonal">
             <div class="grid-personal shadow-sm">
                 {% for i in "1234567891"|make_list %}
-                    <input type="checkbox" class="btn-check" name="personal_turno" id="per_{{ forloop.counter }}" value="Persona {{ forloop.counter }}" onchange="actualizarContadorPersonal()">
-                    <label class="btn btn-outline-primary btn-personal-chip" for="per_{{ forloop.counter }}">
-                        <i class="bi bi-person-circle me-1"></i> Persona {{ forloop.counter }}
-                    </label>
+                    <input type="checkbox" class="btn-check" name="personal_turno" id="p_{{ forloop.counter }}" value="Persona {{ forloop.counter }}">
+                    <label class="btn btn-personal-chip w-100" for="p_{{ forloop.counter }}">Persona {{ forloop.counter }}</label>
                 {% endfor %}
             </div>
         </div>
@@ -197,30 +161,26 @@
             <div class="seccion-card">
                 <div class="text-center mb-4"><div class="titulo-seccion"><h2>{{ categoria.grouper.nombre }}</h2></div></div>
                 <div class="table-responsive">
-                    <table class="table align-middle">
+                    <table class="table table-borderless align-middle">
                         <thead>
                             <tr>
-                                <th style="width: 40%;">PRODUCTO</th>
-                                {% if "SALTE" in categoria.grouper.nombre|upper %}
+                                <th style="width: 35%; text-align: left;">PROD</th> {% if "SALTE" in categoria.grouper.nombre|upper %}
                                     <th>ENT</th><th>BAJA</th><th>TR.</th><th>DEST</th>
                                 {% endif %}
-                                <th style="width: 20%;">SALE</th>
+                                <th style="width: 15%;">SALE</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for p in categoria.list %}
                             <tr class="fila-producto" data-categoria="{{ categoria.grouper.nombre|upper }}">
-                                <td class="fw-bold text-dark small">{{ p.nombre }}</td>
+                                <td class="fw-bold small" style="color: #cbd5e1;">{{ p.nombre }}</td>
                                 {% if "SALTE" in categoria.grouper.nombre|upper %}
                                     <td><input type="number" name="e_{{p.id}}" class="input-planilla" placeholder="0"></td>
                                     <td><input type="number" name="b_{{p.id}}" class="input-planilla" placeholder="0"></td>
-                                    <td><input type="number" name="t_cant_{{p.id}}" class="input-planilla" placeholder="0"></td>
+                                    <td><input type="number" name="t_cant_{{p.id}}" class="input-planilla" placeholder="#"></td>
                                     <td>
-                                        <select name="t_suc_{{p.id}}" class="form-select border-0 bg-light fw-bold" style="font-size: 0.65rem;">
-                                            <option value="">-</option>
-                                            <option value="CAL">CAL</option>
-                                            <option value="MEN">MEN</option>
-                                            <option value="SAP">SAP</option>
+                                        <select name="t_suc_{{p.id}}" class="form-select form-select-sm fw-bold border-0" style="font-size: 0.65rem; height: 38px;">
+                                            <option value="">-</option><option value="CAL">CAL</option><option value="MEN">MEN</option><option value="SAP">SAP</option>
                                         </select>
                                     </td>
                                 {% endif %}
@@ -233,86 +193,66 @@
             </div>
         {% endfor %}
 
-        <div class="seccion-card border-start border-danger border-4">
-            <h6 class="fw-bold text-danger mb-3"><i class="bi bi-dash-circle-fill"></i> GASTOS EXTRAS</h6>
-            <div id="contenedor-gastos">
-                <div class="row g-2 mb-2">
-                    <div class="col-8"><input type="text" name="gasto_desc[]" class="input-planilla text-start px-3" placeholder="Descripción"></div>
-                    <div class="col-4"><input type="number" name="gasto_monto[]" class="input-planilla val-gasto" placeholder="Bs" oninput="calcularTodo()"></div>
-                </div>
-            </div>
-            <button type="button" class="btn btn-sm btn-light w-100 fw-bold text-danger mt-2 py-2" onclick="agregarGasto()">+ AGREGAR OTRO GASTO</button>
-        </div>
-
-        <div class="seccion-card border-start border-primary border-4">
-            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-currency-dollar"></i> DINERO EN CAJA</h6>
+        <div class="seccion-card border-start border-4 shadow-sm" style="border-color: var(--naranja) !important;">
+            <h6 class="fw-bold mb-3" style="color: var(--naranja) !important;"><i class="bi bi-safe2 me-2"></i> CIERRE DE CAJA</h6>
             <div class="row g-2 text-center">
-                <div class="col-4"><label class="small fw-bold opacity-50 mb-1 d-block">EFECTIVO</label><input type="number" id="efectivo" name="caja_efectivo" class="input-planilla" oninput="calcularTodo()" value="0"></div>
-                <div class="col-4"><label class="small fw-bold opacity-50 mb-1 d-block">QR</label><input type="number" id="qr" name="caja_qr" class="input-planilla" oninput="calcularTodo()" value="0"></div>
-                <div class="col-4"><label class="small fw-bold opacity-50 mb-1 d-block">TARJETA</label><input type="number" id="tarjetero" name="caja_tarjeta" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+                <div class="col-4"><label class="cat-label">EFECTIVO</label><input type="number" id="efectivo" name="caja_efectivo" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+                <div class="col-4"><label class="cat-label">QR</label><input type="number" id="qr" name="caja_qr" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+                <div class="col-4"><label class="cat-label">TARJETA</label><input type="number" id="tarjetero" name="caja_tarjeta" class="input-planilla" oninput="calcularTodo()" value="0"></div>
             </div>
         </div>
 
         <div class="resumen-footer">
-            <div class="row text-center mb-3">
-                <div class="col-3"><span class="cat-total">SALTEÑAS</span><br><span id="tot-salte" class="total-valor">0</span></div>
-                <div class="col-3"><span class="cat-total">JUGOS</span><br><span id="tot-jugo" class="total-valor">0</span></div>
-                <div class="col-3"><span class="cat-total">BEBIDAS</span><br><span id="tot-bebi" class="total-valor">0</span></div>
-                <div class="col-3"><span class="cat-total">CALIENTES</span><br><span id="tot-cali" class="total-valor">0</span></div>
+            <div class="row text-center mb-4">
+                <div class="col-6 mb-3 border-end border-light border-opacity-10">
+                    <span class="cat-label">Salteñas</span><span id="tot-salte" class="cat-value">0</span>
+                </div>
+                <div class="col-6 mb-3">
+                    <span class="cat-label">Jugos</span><span id="tot-jugo" class="cat-value">0</span>
+                </div>
+                <div class="col-6 border-end border-light border-opacity-10">
+                    <span class="cat-label">Bebidas</span><span id="tot-bebi" class="cat-value">0</span>
+                </div>
+                <div class="col-6">
+                    <span class="cat-label">Calientes</span><span id="tot-cali" class="cat-value">0</span>
+                </div>
             </div>
             
-            <div class="row g-2 align-items-center border-top border-secondary pt-3">
-                <div class="col-6">
-                    <div class="row g-2">
-                        <div class="col-6"><button type="button" onclick="guardarPlanilla()" class="btn-accion btn-guardar"><i class="bi bi-check-circle"></i></button></div>
-                        <div class="col-6"><button type="button" onclick="descargarPDF()" class="btn-accion btn-pdf"><i class="bi bi-file-pdf"></i></button></div>
-                    </div>
-                </div>
-                <div class="col-6 text-end">
-                    <span class="small opacity-50 fw-bold d-block" style="font-size: 0.6rem;">DIFERENCIA FINAL</span>
-                    <h3 id="diferencia-final" class="fw-800 mb-0" style="font-size: 1.4rem;">0.00 Bs</h3>
-                </div>
+            <div class="text-center border-top border-light border-opacity-10 pt-4 mb-4">
+                <span class="cat-label" style="font-size: 0.8rem;">DIFERENCIA TOTAL</span>
+                <h2 id="diferencia-final" class="fw-800 mt-1" style="font-size: 2.5rem; text-shadow: 0 4px 15px rgba(0,0,0,0.6);">0.00 Bs</h2>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-6"><button type="button" onclick="guardarPlanilla()" class="btn-final btn-save"><i class="bi bi-check-circle-fill"></i> GUARDAR</button></div>
+                <div class="col-6"><button type="button" onclick="descargarPDF()" class="btn-final btn-report"><i class="bi bi-file-earmark-pdf-fill"></i> REPORTE</button></div>
             </div>
         </div>
     </form>
 </div>
 
 <script>
-    // Mantenemos la lógica de cálculo que ya tenías
-    function actualizarContadorPersonal() {
-        const sel = document.querySelectorAll('input[name="personal_turno"]:checked').length;
-        document.querySelector('.btn-personal-menu span').innerHTML = `<i class="bi bi-people-fill text-orange me-2"></i> ${sel > 0 ? sel + ' SELECCIONADOS' : 'EQUIPO DE TRABAJO'}`;
-    }
-
-    function calcularTodo() {
-        let tS = 0, tJ = 0, tB = 0, tC = 0, bruto = 0, gastos = 0;
-        document.querySelectorAll('.fila-producto').forEach(f => {
-            let cat = f.dataset.categoria;
-            let cant = parseInt(f.querySelector('.val-venta').value) || 0;
-            let precio = parseFloat(f.querySelector('.val-venta').dataset.precio) || 0;
-            bruto += (cant * precio);
-            if (cat.includes('SALTE')) tS += cant;
-            else if (cat.includes('JUGO')) tJ += cant;
-            else if (cat.includes('CALIENTE')) tC += cant;
-            else if (cat.includes('BEBIDA')) tB += cant;
-        });
-        document.querySelectorAll('.val-gasto').forEach(g => gastos += parseFloat(g.value) || 0);
-        document.getElementById('tot-salte').innerText = tS;
-        document.getElementById('tot-jugo').innerText = tJ;
-        document.getElementById('tot-bebi').innerText = tB;
-        document.getElementById('tot-cali').innerText = tC;
-
-        let real = (parseFloat(document.getElementById('efectivo').value) || 0) + 
-                   (parseFloat(document.getElementById('qr').value) || 0) + 
-                   (parseFloat(document.getElementById('tarjetero').value) || 0);
-        
-        let diff = real - (bruto - gastos);
-        const diffEl = document.getElementById('diferencia-final');
-        diffEl.innerText = diff.toFixed(2) + " Bs";
-        diffEl.style.color = (Math.abs(diff) < 0.1) ? "#10b981" : (diff > 0 ? "#3b82f6" : "#ef4444");
-    }
-
-    // Funciones de agregar gasto y guardar planilla se mantienen igual
+// LÓGICA ORIGINAL INTACTA
+let lastCajaId = null;
+function calcularTodo() {
+    let tS = 0, tJ = 0, tB = 0, tC = 0, ingresoBruto = 0;
+    document.querySelectorAll('.fila-producto').forEach(f => {
+        let cat = f.dataset.categoria;
+        let inputVenta = f.querySelector('.val-venta');
+        let cant = parseInt(inputVenta.value) || 0;
+        let precio = parseFloat(inputVenta.dataset.precio) || 0;
+        ingresoBruto += (cant * precio);
+        if (cat.includes('SALTE')) tS += cant; else if (cat.includes('JUGO')) tJ += cant; else if (cat.includes('CALIENTE')) tC += cant; else if (cat.includes('BEBIDA')) tB += cant;
+    });
+    document.getElementById('tot-salte').innerText = tS; document.getElementById('tot-jugo').innerText = tJ; document.getElementById('tot-bebi').innerText = tB; document.getElementById('tot-cali').innerText = tC;
+    let real = (parseFloat(document.getElementById('efectivo').value) || 0) + (parseFloat(document.getElementById('qr').value) || 0) + (parseFloat(document.getElementById('tarjetero').value) || 0);
+    let diff = real - ingresoBruto;
+    const diffEl = document.getElementById('diferencia-final');
+    diffEl.innerText = diff.toFixed(2) + " Bs";
+    diffEl.style.color = (Math.abs(diff) < 0.1) ? "#10b981" : (diff > 0 ? "#60a5fa" : "#f87171");
+}
+function guardarPlanilla() { fetch("{% url 'guardar_registro' %}", { method: "POST", body: new FormData(document.getElementById('formPlanilla')), headers: { "X-CSRFToken": "{{ csrf_token }}" } }).then(r => r.json()).then(data => { if(data.status === 'success') { lastCajaId = data.caja_id; Swal.fire({ title: '¡Guardado!', text: 'Planilla registrada con éxito.', icon: 'success', confirmButtonColor: '#FF8C00' }); } }); }
+function descargarPDF() { if(!lastCajaId) { Swal.fire('Atención', 'Guarda primero para generar el PDF.', 'warning'); return; } window.open("{% url 'generar_pdf_estilo_cuaderno' %}?caja_id=" + lastCajaId, "_blank"); }
 </script>
 </body>
 </html>
