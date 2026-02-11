@@ -20,7 +20,9 @@
         .table th { font-size: 0.6rem; text-transform: uppercase; text-align: center; vertical-align: middle; }
         .input-planilla { width: 100%; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-weight: 700; height: 35px; font-size: 0.85rem; }
 
-        /* BLOQUE DE TOTALES AL FINAL */
+        /* ESTILO PERSONAL RESPONSABLE */
+        .card-personal { border-left: 5px solid var(--naranja); background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+
         .resumen-footer { background: var(--negro); color: white; border-radius: 15px; padding: 20px; margin-top: 20px; border-bottom: 4px solid var(--naranja); }
         .cat-total { color: var(--naranja); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; }
         .total-valor { font-weight: 800; font-size: 1.1rem; }
@@ -32,7 +34,7 @@
 <body>
 
 <nav class="navbar navbar-cardelfi sticky-top shadow">
-    <div class="container-fluid d-flex justify-content-between">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
         <a href="{% url 'seleccion_sucursal' %}" class="text-white"><i class="bi bi-chevron-left"></i></a>
         <span class="text-white fw-bold">PLANILLA: {{ sucursal_activa.nombre|upper }}</span>
         <div style="width: 20px;"></div>
@@ -44,6 +46,15 @@
         {% csrf_token %}
         <input type="hidden" name="sucursal_id" value="{{ sucursal_activa.id }}">
 
+        <div class="card-personal shadow-sm">
+            <h6 class="fw-800 text-dark mb-3"><i class="bi bi-people-fill text-primary"></i> PERSONAL DE TURNO</h6>
+            <div class="row g-2">
+                <div class="col-4"><input type="text" name="personal_1" class="input-planilla text-start px-2" placeholder="Persona 1"></div>
+                <div class="col-4"><input type="text" name="personal_2" class="input-planilla text-start px-2" placeholder="Persona 2"></div>
+                <div class="col-4"><input type="text" name="personal_3" class="input-planilla text-start px-2" placeholder="Persona 3"></div>
+            </div>
+        </div>
+
         {% regroup productos by categoria as categoria_list %}
         {% for categoria in categoria_list %}
             <div class="seccion-card">
@@ -54,17 +65,16 @@
                             <tr>
                                 <th style="width: 30%;">PRODUCTO</th>
                                 {% if "SALTE" in categoria.grouper.nombre|upper %}
-                                    <th>PROD</th><th>ENT</th><th>BAJA</th><th>TR. CANT</th><th>TR. DEST</th>
+                                    <th>ENT</th><th>BAJA</th><th>TR. CANT</th><th>TR. DEST</th>
                                 {% endif %}
                                 <th style="width: 15%;">SALE</th>
-                            </tr>
+                                </tr>
                         </thead>
                         <tbody>
                             {% for p in categoria.list %}
                             <tr class="fila-producto" data-categoria="{{ categoria.grouper.nombre|upper }}">
                                 <td class="fw-bold small">{{ p.nombre }}</td>
                                 {% if "SALTE" in categoria.grouper.nombre|upper %}
-                                    <td><input type="number" name="p_{{p.id}}" class="input-planilla"></td>
                                     <td><input type="number" name="e_{{p.id}}" class="input-planilla"></td>
                                     <td><input type="number" name="b_{{p.id}}" class="input-planilla"></td>
                                     <td><input type="number" name="t_cant_{{p.id}}" class="input-planilla" placeholder="#"></td>
@@ -135,8 +145,9 @@ function calcularTodo() {
 
     document.querySelectorAll('.fila-producto').forEach(f => {
         let cat = f.dataset.categoria;
-        let cant = parseInt(f.querySelector('.val-venta').value) || 0;
-        let precio = parseFloat(f.querySelector('.val-venta').dataset.precio) || 0;
+        let inputVenta = f.querySelector('.val-venta');
+        let cant = parseInt(inputVenta.value) || 0;
+        let precio = parseFloat(inputVenta.dataset.precio) || 0;
         ingresoBruto += (cant * precio);
 
         if (cat.includes('SALTE')) tS += cant;
@@ -156,7 +167,6 @@ function calcularTodo() {
                    (parseFloat(document.getElementById('qr').value) || 0) + 
                    (parseFloat(document.getElementById('tarjetero').value) || 0);
 
-    // $$Diferencia = Caja Real - (Ingreso Bruto - Gastos)$$
     let diff = cajaReal - (ingresoBruto - gastosTotales);
     const diffEl = document.getElementById('diferencia-final');
     diffEl.innerText = diff.toFixed(2) + " Bs";
