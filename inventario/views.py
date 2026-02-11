@@ -55,7 +55,7 @@ def historial_ventas(request):
 
 @login_required
 def ver_planilla_html(request):
-    """Visualización previa del reporte en formato web (Corrige el AttributeError)."""
+    """Visualización previa del reporte en formato web."""
     caja_id = request.GET.get('caja_id')
     cierre = get_object_or_404(CajaDiaria, id=caja_id)
     return render(request, 'inventario/pdf_template.html', {'cierre': cierre, 'es_vista_web': True})
