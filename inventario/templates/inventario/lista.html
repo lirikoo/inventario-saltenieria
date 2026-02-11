@@ -15,13 +15,12 @@
         :root { 
             --naranja: #FF8C00; 
             --azul-cardelfi: #001f3f;
-            --glass-bg: rgba(255, 255, 255, 0.65); /* Transparencia clara */
-            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
             --texto-dark: #1e293b;
         }
 
         body { 
-            /* Fondo claro con degradado sutil para resaltar la transparencia */
             background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 50%, #fee2e2 100%);
             background-attachment: fixed;
             font-family: 'Inter', sans-serif; 
@@ -30,25 +29,21 @@
             min-height: 100vh;
         }
 
-        /* NAVBAR CLARA */
         .navbar-cardelfi { 
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
             border-bottom: 3px solid var(--naranja);
             padding: 12px 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
-        .navbar-cardelfi .text-white { color: var(--azul-cardelfi) !important; }
 
-        /* TARJETAS EFECTO CRISTAL CLARO */
         .seccion-card { 
             background: var(--glass-bg);
-            backdrop-filter: blur(15px); /* Efecto de desenfoque de fondo */
+            backdrop-filter: blur(15px);
             border-radius: 22px; 
             padding: 24px; 
             margin-bottom: 25px; 
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
         }
 
         .titulo-seccion h2 { 
@@ -59,89 +54,39 @@
             font-weight: 800; 
             font-size: 0.75rem; 
             text-transform: uppercase;
-            letter-spacing: 1px;
             box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
         }
 
-        /* PERSONAL DESPLEGABLE TRANSPARENTE */
-        .btn-personal-menu { 
-            width: 100%; 
-            background: rgba(255, 255, 255, 0.5);
-            border: 2px solid var(--azul-cardelfi);
-            color: var(--azul-cardelfi); 
-            border-radius: 16px; 
-            padding: 14px 20px; 
-            font-weight: 700; 
-            font-size: 0.85rem;
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-        }
-        
-        .grid-personal { 
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 18px; 
-            background: rgba(255, 255, 255, 0.3); border-radius: 18px; 
-            border: 1px solid var(--glass-border); margin-bottom: 20px;
-        }
-
-        .btn-personal-chip { 
-            font-size: 0.75rem; font-weight: 700; border-radius: 12px; padding: 10px;
-            border: 1px solid var(--azul-cardelfi); color: var(--azul-cardelfi); background: transparent; transition: 0.3s;
-        }
-        .btn-check:checked + .btn-personal-chip { 
-            background: var(--azul-cardelfi) !important; color: white !important;
-            box-shadow: 0 4px 12px rgba(0, 31, 63, 0.2);
-        }
-
-        /* TABLA DE ALTA VISIBILIDAD */
-        .table thead th { 
-            background: rgba(0, 31, 63, 0.05); color: var(--azul-cardelfi); font-weight: 800;
-            font-size: 0.65rem; text-transform: uppercase; text-align: center; padding: 12px 4px; 
-            border-bottom: 2px solid var(--naranja);
-        }
-        .table td { padding: 12px 4px; vertical-align: middle; border-bottom: 1px solid rgba(0,0,0,0.05); }
-
-        /* INPUTS INTEGRADOS (YA NO SON BLANCOS PUROS) */
         .input-planilla { 
             width: 100%; border: 1.5px solid rgba(0, 31, 63, 0.2); 
-            background: rgba(255, 255, 255, 0.4); /* Transparencia en el input */
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 12px; text-align: center; font-weight: 700; height: 44px; 
-            font-size: 0.9rem; color: var(--azul-cardelfi); transition: all 0.2s;
-        }
-        .input-planilla:focus { 
-            border-color: var(--naranja); outline: none; background: white;
-            box-shadow: 0 0 12px rgba(255, 140, 0, 0.2);
-        }
-        
-        /* SELECTORES CON NOMBRES COMPLETOS */
-        .form-select { 
-            background-color: rgba(255, 255, 255, 0.5); color: var(--azul-cardelfi); 
-            border: 1.5px solid rgba(0, 31, 63, 0.2); border-radius: 10px; font-size: 0.7rem; font-weight: 700;
+            font-size: 0.9rem; color: var(--azul-cardelfi);
         }
 
-        /* RESUMEN FINAL ESTÁTICO (CLARO) */
+        .btn-personal-menu { 
+            width: 100%; background: rgba(255, 255, 255, 0.6);
+            border: 2px solid var(--azul-cardelfi); color: var(--azul-cardelfi); 
+            border-radius: 16px; padding: 14px; font-weight: 700;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+        }
+
+        /* RESUMEN FINAL ESTÁTICO */
         .resumen-footer { 
             background: rgba(0, 31, 63, 0.95);
-            backdrop-filter: blur(10px);
             color: white; border-radius: 26px; padding: 35px; margin-top: 40px; 
             border-top: 5px solid var(--naranja);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
-        .cat-label { color: var(--naranja); font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
-        .cat-value { font-weight: 800; font-size: 1.6rem; display: block; margin-top: 4px; }
-
-        .btn-final { 
-            font-weight: 800; padding: 18px; border-radius: 20px; border: none; color: white; 
-            width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s;
-        }
-        .btn-save { background: #10b981; }
-        .btn-report { background: #ef4444; }
+        .cat-label { color: var(--naranja); font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
+        .cat-value { font-weight: 800; font-size: 1.6rem; display: block; }
     </style>
 </head>
 <body>
 
 <nav class="navbar-cardelfi sticky-top">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-        <a href="{% url 'seleccion_sucursal' %}" class="text-white text-decoration-none"><i class="bi bi-chevron-left fs-4"></i></a>
-        <span class="text-white fw-bold" style="letter-spacing: 1.5px;">{{ sucursal_activa.nombre|upper }}</span>
+        <a href="{% url 'seleccion_sucursal' %}" class="text-dark text-decoration-none"><i class="bi bi-chevron-left fs-4"></i></a>
+        <span class="fw-bold" style="color: var(--azul-cardelfi); letter-spacing: 1px;">{{ sucursal_activa.nombre|upper }}</span>
         <div style="width: 32px;"></div>
     </div>
 </nav>
@@ -152,14 +97,14 @@
         <input type="hidden" name="sucursal_id" value="{{ sucursal_activa.id }}">
 
         <button class="btn-personal-menu shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#colPers">
-            <span><i class="bi bi-person-circle me-2"></i> PERSONAL DE TURNO</span>
+            <span><i class="bi bi-people-fill me-2"></i> PERSONAL DE TURNO</span>
             <i class="bi bi-caret-down-fill"></i>
         </button>
         <div class="collapse" id="colPers">
-            <div class="grid-personal shadow-sm">
+            <div class="grid-personal shadow-sm" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 18px; background: rgba(255,255,255,0.3); border-radius: 18px; margin-bottom: 20px;">
                 {% for i in "1234567891"|make_list %}
                     <input type="checkbox" class="btn-check" name="personal_turno" id="p_{{ forloop.counter }}" value="Persona {{ forloop.counter }}">
-                    <label class="btn btn-personal-chip w-100" for="p_{{ forloop.counter }}">Persona {{ forloop.counter }}</label>
+                    <label class="btn btn-outline-primary" for="p_{{ forloop.counter }}" style="border-radius:12px; font-weight:700;">Persona {{ forloop.counter }}</label>
                 {% endfor %}
             </div>
         </div>
@@ -171,8 +116,8 @@
                 <div class="table-responsive">
                     <table class="table table-borderless align-middle">
                         <thead>
-                            <tr>
-                                <th style="width: 35%; text-align: left;">PROD</th>
+                            <tr style="border-bottom: 2px solid var(--naranja);">
+                                <th style="width: 35%; text-align: left; color: var(--azul-cardelfi);">PROD</th>
                                 {% if "SALTE" in categoria.grouper.nombre|upper %}
                                     <th>ENT</th><th>BAJA</th><th>TR.</th><th>DEST</th>
                                 {% endif %}
@@ -188,11 +133,11 @@
                                     <td><input type="number" name="b_{{p.id}}" class="input-planilla" placeholder="0"></td>
                                     <td><input type="number" name="t_cant_{{p.id}}" class="input-planilla" placeholder="#"></td>
                                     <td>
-                                        <select name="t_suc_{{p.id}}" class="form-select form-select-sm border-0">
+                                        <select name="t_suc_{{p.id}}" class="form-select form-select-sm border-0 bg-white shadow-sm" style="height: 44px; font-weight:700;">
                                             <option value="">-</option>
-                                            <option value="CAL">Calacoto</option>
-                                            <option value="MEN">Méndez Arcos</option>
-                                            <option value="SAP">San Pedro</option>
+                                            <option value="Calacoto">Calacoto</option>
+                                            <option value="Méndez Arcos">Méndez Arcos</option>
+                                            <option value="San Pedro">San Pedro</option>
                                         </select>
                                     </td>
                                 {% endif %}
@@ -205,8 +150,19 @@
             </div>
         {% endfor %}
 
+        <div class="seccion-card border-start border-4 shadow-sm" style="border-color: #ef4444 !important;">
+            <h6 class="fw-bold mb-3" style="color: #ef4444;"><i class="bi bi-dash-circle-fill me-2"></i> GASTOS EXTRAS</h6>
+            <div id="contenedor-gastos">
+                <div class="row g-2 mb-2">
+                    <div class="col-8"><input type="text" name="gasto_desc[]" class="input-planilla text-start px-3" style="background:white" placeholder="Descripción (ej: Pasajes)"></div>
+                    <div class="col-4"><input type="number" name="gasto_monto[]" class="input-planilla val-gasto" style="background:white" placeholder="Bs" oninput="calcularTodo()"></div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger w-100 fw-bold mt-2" style="border-radius:12px" onclick="agregarGasto()">+ AGREGAR OTRO GASTO</button>
+        </div>
+
         <div class="seccion-card border-start border-4 shadow-sm" style="border-color: var(--naranja) !important;">
-            <h6 class="fw-bold mb-3" style="color: var(--azul-cardelfi) !important;"><i class="bi bi-wallet2 me-2"></i> CIERRE DE CAJA</h6>
+            <h6 class="fw-bold mb-3" style="color: var(--azul-cardelfi) !important;"><i class="bi bi-wallet2 me-2"></i> DINERO EN CAJA REAL</h6>
             <div class="row g-2 text-center">
                 <div class="col-4"><label class="cat-label" style="color:#64748b">EFECTIVO</label><input type="number" id="efectivo" name="caja_efectivo" class="input-planilla" oninput="calcularTodo()" value="0"></div>
                 <div class="col-4"><label class="cat-label" style="color:#64748b">QR</label><input type="number" id="qr" name="caja_qr" class="input-planilla" oninput="calcularTodo()" value="0"></div>
@@ -216,53 +172,65 @@
 
         <div class="resumen-footer">
             <div class="row text-center mb-4">
-                <div class="col-6 mb-3 border-end border-light border-opacity-10">
-                    <span class="cat-label">Salteñas</span><span id="tot-salte" class="cat-value">0</span>
-                </div>
-                <div class="col-6 mb-3">
-                    <span class="cat-label">Jugos</span><span id="tot-jugo" class="cat-value">0</span>
-                </div>
-                <div class="col-6 border-end border-light border-opacity-10">
-                    <span class="cat-label">Bebidas</span><span id="tot-bebi" class="cat-value">0</span>
-                </div>
-                <div class="col-6">
-                    <span class="cat-label">Calientes</span><span id="tot-cali" class="cat-value">0</span>
-                </div>
+                <div class="col-6 mb-3 border-end border-light border-opacity-10"><span class="cat-label">Salteñas</span><span id="tot-salte" class="cat-value">0</span></div>
+                <div class="col-6 mb-3"><span class="cat-label">Jugos</span><span id="tot-jugo" class="cat-value">0</span></div>
+                <div class="col-6 border-end border-light border-opacity-10"><span class="cat-label">Bebidas</span><span id="tot-bebi" class="cat-value">0</span></div>
+                <div class="col-6"><span class="cat-label">Calientes</span><span id="tot-cali" class="cat-value">0</span></div>
             </div>
             <div class="text-center border-top border-light border-opacity-10 pt-4 mb-5">
-                <span class="cat-label" style="font-size: 0.85rem;">DIFERENCIA FINAL</span>
+                <span class="cat-label" style="font-size: 0.85rem;">DIFERENCIA TOTAL</span>
                 <h2 id="diferencia-final" class="fw-800 mt-1" style="font-size: 2.8rem;">0.00 Bs</h2>
             </div>
             <div class="row g-3">
-                <div class="col-6"><button type="button" onclick="guardarPlanilla()" class="btn-final btn-save shadow-sm"><i class="bi bi-cloud-upload"></i> GUARDAR</button></div>
-                <div class="col-6"><button type="button" onclick="descargarPDF()" class="btn-final btn-report shadow-sm"><i class="bi bi-file-pdf"></i> PDF</button></div>
+                <div class="col-6"><button type="button" onclick="guardarPlanilla()" class="btn btn-success w-100 p-3 fw-bold" style="border-radius:18px">GUARDAR</button></div>
+                <div class="col-6"><button type="button" onclick="descargarPDF()" class="btn btn-danger w-100 p-3 fw-bold" style="border-radius:18px">REPORTE PDF</button></div>
             </div>
         </div>
     </form>
 </div>
 
 <script>
-// LÓGICA DE CÁLCULO MANTENIDA
 let lastCajaId = null;
+function agregarGasto() {
+    const div = document.createElement('div');
+    div.className = 'row g-2 mb-2';
+    div.innerHTML = `<div class="col-8"><input type="text" name="gasto_desc[]" class="input-planilla text-start px-3" style="background:white" placeholder="Descripción"></div>
+                     <div class="col-4"><input type="number" name="gasto_monto[]" class="input-planilla val-gasto" style="background:white" placeholder="Bs" oninput="calcularTodo()"></div>`;
+    document.getElementById('contenedor-gastos').appendChild(div);
+}
+
 function calcularTodo() {
-    let tS = 0, tJ = 0, tB = 0, tC = 0, ingresoBruto = 0;
+    let tS = 0, tJ = 0, tB = 0, tC = 0, bruto = 0, gastos = 0;
     document.querySelectorAll('.fila-producto').forEach(f => {
-        let cat = f.dataset.categoria;
-        let inputVenta = f.querySelector('.val-venta');
-        let cant = parseInt(inputVenta.value) || 0;
-        let precio = parseFloat(inputVenta.dataset.precio) || 0;
-        ingresoBruto += (cant * precio);
+        let cat = f.dataset.categoria, cant = parseInt(f.querySelector('.val-venta').value) || 0, precio = parseFloat(f.querySelector('.val-venta').dataset.precio) || 0;
+        bruto += (cant * precio);
         if (cat.includes('SALTE')) tS += cant; else if (cat.includes('JUGO')) tJ += cant; else if (cat.includes('CALIENTE')) tC += cant; else if (cat.includes('BEBIDA')) tB += cant;
     });
+    document.querySelectorAll('.val-gasto').forEach(g => gastos += parseFloat(g.value) || 0);
     document.getElementById('tot-salte').innerText = tS; document.getElementById('tot-jugo').innerText = tJ; document.getElementById('tot-bebi').innerText = tB; document.getElementById('tot-cali').innerText = tC;
     let real = (parseFloat(document.getElementById('efectivo').value) || 0) + (parseFloat(document.getElementById('qr').value) || 0) + (parseFloat(document.getElementById('tarjetero').value) || 0);
-    let diff = real - ingresoBruto;
+    let diff = real - (bruto - gastos);
     const diffEl = document.getElementById('diferencia-final');
     diffEl.innerText = diff.toFixed(2) + " Bs";
     diffEl.style.color = (Math.abs(diff) < 0.1) ? "#10b981" : (diff > 0 ? "#3b82f6" : "#ef4444");
 }
-function guardarPlanilla() { fetch("{% url 'guardar_registro' %}", { method: "POST", body: new FormData(document.getElementById('formPlanilla')), headers: { "X-CSRFToken": "{{ csrf_token }}" } }).then(r => r.json()).then(data => { if(data.status === 'success') { lastCajaId = data.caja_id; Swal.fire({ title: '¡Guardado!', text: 'Planilla registrada con éxito.', icon: 'success', confirmButtonColor: '#FF8C00' }); } }); }
-function descargarPDF() { if(!lastCajaId) { Swal.fire('Atención', 'Guarda primero para generar el PDF.', 'warning'); return; } window.open("{% url 'generar_pdf_estilo_cuaderno' %}?caja_id=" + lastCajaId, "_blank"); }
+
+function guardarPlanilla() {
+    fetch("{% url 'guardar_registro' %}", {
+        method: "POST",
+        body: new FormData(document.getElementById('formPlanilla')),
+        headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    }).then(r => r.json()).then(data => {
+        if(data.status === 'success') {
+            lastCajaId = data.caja_id;
+            Swal.fire({ title: '¡Guardado!', text: 'Planilla de Cardelfi registrada.', icon: 'success', confirmButtonColor: '#FF8C00' });
+        }
+    });
+}
+function descargarPDF() {
+    if(!lastCajaId) { Swal.fire('Error', 'Guarda primero para generar el reporte.', 'warning'); return; }
+    window.open("{% url 'generar_pdf_estilo_cuaderno' %}?caja_id=" + lastCajaId, "_blank");
+}
 </script>
 </body>
 </html>

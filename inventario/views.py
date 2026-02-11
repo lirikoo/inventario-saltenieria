@@ -11,7 +11,7 @@ from .models import (
     CajaDiaria, Gasto, VentaSalteña, GastoExtra, Categoria
 )
 
-# Importación de WeasyPrint para los reportes
+# Importación de WeasyPrint
 from weasyprint import HTML
 
 # --- 1. NAVEGACIÓN ---
@@ -24,15 +24,14 @@ def seleccionar_sucursal(request):
 
 @login_required
 def lista_productos(request):
-    """Vista de la planilla móvil con resumen de subtotales para el usuario."""
+    """Vista de la planilla móvil con orden prioritario de Salteñas."""
     sucursal_id = request.GET.get('sucursal_id')
     if not sucursal_id:
         return redirect('seleccion_sucursal')
     
     sucursal = get_object_or_404(Sucursal, id=sucursal_id)
-    hoy = timezone.now().date()
     
-    # MODIFICACIÓN: Ordenamos con prioridad para que las SALTEÑAS salgan adelante
+    # Ordenamos con prioridad para que las SALTEÑAS salgan primero
     productos = Producto.objects.filter(sucursal=sucursal).select_related('categoria').annotate(
         prioridad=Case(
             When(categoria__nombre__icontains='SALTE', then=Value(1)),
@@ -41,24 +40,9 @@ def lista_productos(request):
         )
     ).order_by('prioridad', 'categoria__nombre', 'nombre')
     
-    ventas_hoy = VentaSalteña.objects.filter(sucursal=sucursal, fecha=hoy)
-    gastos_hoy = GastoExtra.objects.filter(sucursal=sucursal, fecha=hoy)
-
-    # Cálculo de Totales
-    total_cantidad = ventas_hoy.aggregate(Sum('venta'))['venta__sum'] or 0
-    total_ingreso = sum(v.total_bs for v in ventas_hoy)
-    total_gastos = gastos_hoy.aggregate(Sum('monto'))['monto__sum'] or 0
-    
-    # Cálculo del Saldo Neto: $Saldo Neto = Ingreso Bruto - Gastos$
-    total_neto = total_ingreso - total_gastos
-
     return render(request, 'inventario/lista.html', {
         'productos': productos, 
         'sucursal_activa': sucursal,
-        'total_cantidad': total_cantidad,
-        'total_ingreso': total_ingreso,
-        'total_gastos': total_gastos,
-        'total_neto': total_neto,
     })
 
 # --- 2. REPORTES Y CONSULTAS ---
@@ -71,7 +55,7 @@ def historial_ventas(request):
 
 @login_required
 def ver_planilla_html(request):
-    """Visualización previa del reporte en formato web."""
+    """Visualización previa del reporte en formato web (Corrige el AttributeError)."""
     caja_id = request.GET.get('caja_id')
     cierre = get_object_or_404(CajaDiaria, id=caja_id)
     return render(request, 'inventario/pdf_template.html', {'cierre': cierre, 'es_vista_web': True})
@@ -80,31 +64,33 @@ def ver_planilla_html(request):
 
 @login_required
 def guardar_registro(request):
-    """Guarda Inventario, Ventas, Traspasos y Gastos dinámicos."""
+    """Guarda Inventario, Ventas, Personal, Traspasos y Gastos."""
     if request.method == "POST":
         suc_id = request.POST.get('sucursal_id')
         suc_obj = get_object_or_404(Sucursal, id=suc_id)
         
+        # Captura de personal de turno (Checkboxes)
+        personal_seleccionado = request.POST.getlist('personal_turno')
+        nombres_personal = ", ".join(personal_seleccionado)
+
         # 1. Guardar cierre financiero (Caja)
         caja = CajaDiaria.objects.create(
             sucursal=suc_obj,
             efectivo=float(request.POST.get('caja_efectivo') or 0),
             qr=float(request.POST.get('caja_qr') or 0),
-            tarjetero=float(request.POST.get('caja_tarjeta') or 0)
+            tarjetero=float(request.POST.get('caja_tarjeta') or 0),
+            personal_turno=nombres_personal # Asegúrate de tener este campo en models.py
         )
 
         # 2. Guardar Movimientos por Producto
         productos = Producto.objects.filter(sucursal=suc_obj)
         for p in productos:
-            # Captura de datos del formulario
             v_cant = int(request.POST.get(f's_{p.id}') or 0)
-            p_v = request.POST.get(f'p_{p.id}', 0)
             e_v = request.POST.get(f'e_{p.id}', 0)
             b_v = request.POST.get(f'b_{p.id}', 0)
             t_cant = request.POST.get(f't_cant_{p.id}', 0)
             t_suc = request.POST.get(f't_suc_{p.id}', '')
 
-            # Guardar venta individual para el registro de ventas
             if v_cant > 0:
                 VentaSalteña.objects.create(
                     producto=p.nombre, 
@@ -113,18 +99,18 @@ def guardar_registro(request):
                     sucursal=suc_obj
                 )
             
-            # Guardar registro diario (Inventario/PDF) incluyendo traspasos
+            # Guardar registro diario detallado
             RegistroDiario.objects.create(
                 producto=p,
                 sucursal=suc_obj,
-                produccion=int(p_v or 0),
                 entrada=int(e_v or 0),
                 baja=int(b_v or 0),
                 traspaso=int(t_cant or 0),
+                traspaso_destino=t_suc, # Guarda el nombre completo de la sucursal
                 salida=v_cant
             )
 
-        # 3. Guardar lista dinámica de Gastos Extras
+        # 3. Guardar Gastos Extras
         descs = request.POST.getlist('gasto_desc[]')
         montos = request.POST.getlist('gasto_monto[]')
         for d, m in zip(descs, montos):
@@ -141,60 +127,65 @@ def guardar_registro(request):
 
 @login_required
 def generar_pdf_estilo_cuaderno(request):
-    """Genera el PDF usando exactamente la estructura de tu plantilla original"""
+    """Genera, organiza y descarga automáticamente el reporte PDF."""
     caja_id = request.GET.get('caja_id')
     cierre = get_object_or_404(CajaDiaria, id=caja_id)
     
-    # MODIFICACIÓN: Aplicamos la misma prioridad para que en el PDF también salgan las Salteñas primero
-    productos_sucursal = Producto.objects.filter(
-        sucursal=cierre.sucursal
-    ).select_related('categoria').annotate(
-        prioridad=Case(
-            When(categoria__nombre__icontains='SALTE', then=Value(1)),
-            default=Value(2),
-            output_field=IntegerField(),
-        )
+    # 1. Datos para el reporte (Salteñas primero)
+    productos = Producto.objects.filter(sucursal=cierre.sucursal).annotate(
+        prioridad=Case(When(categoria__nombre__icontains='SALTE', then=Value(1)), default=Value(2), output_field=IntegerField())
     ).order_by('prioridad', 'categoria__nombre', 'nombre')
 
-    # 2. Buscamos los registros de inventario de ese día
-    registros_hoy = {
-        r.producto_id: r 
-        for r in RegistroDiario.objects.filter(
-            sucursal=cierre.sucursal, 
-            fecha_creacion__date=cierre.fecha
-        )
-    }
+    registros = {r.producto_id: r for r in RegistroDiario.objects.filter(
+        sucursal=cierre.sucursal, 
+        fecha_creacion__date=cierre.fecha
+    )}
+    
+    gastos_extras = GastoExtra.objects.filter(sucursal=cierre.sucursal, fecha=cierre.fecha)
 
-    # 3. Construimos la lista "filas" que pide tu plantilla
     filas = []
-    total_ventas_bs = 0
-    
-    for p in productos_sucursal:
-        reg = registros_hoy.get(p.id)
-        if reg:
-            # Sumamos al total solo lo que tiene registro de salida
-            total_ventas_bs += (reg.salida * p.precio_unitario)
-            
-        # Creamos el objeto que tu HTML recorre como {{ fila.producto }} y {{ fila.reg }}
-        filas.append({
-            'producto': p,
-            'reg': reg
-        })
-    
-    total_caja_real = cierre.efectivo + cierre.qr + cierre.tarjetero
-    diferencia = total_caja_real - total_ventas_bs
+    total_ventas = 0
+    tS, tJ = 0, 0 # Contadores para el tablero final
 
-    # 4. Enviamos los datos al HTML (Nombres de variables exactos a tu plantilla)
-    html_string = render_to_string('inventario/pdf_template.html', {
+    for p in productos:
+        reg = registros.get(p.id)
+        v_bs = (reg.salida * p.precio_unitario) if reg else 0
+        total_ventas += v_bs
+        
+        # Lógica de conteo por tipo
+        cat_nombre = p.categoria.nombre.upper()
+        cant_sale = reg.salida if reg else 0
+        if 'SALTE' in cat_nombre: tS += cant_sale
+        elif 'JUGO' in cat_nombre: tJ += cant_sale
+
+        filas.append({
+            'producto': p, 
+            'reg': reg, 
+            'total_fila_bs': v_bs
+        })
+
+    # 2. Cálculos consolidados
+    total_gastos = sum(g.monto for g in gastos_extras)
+    total_caja_real = cierre.efectivo + cierre.qr + cierre.tarjetero
+    diferencia = total_caja_real - (total_ventas - total_gastos)
+
+    context = {
         'cierre': cierre,
-        'filas': filas,  # Nombre exacto que usa tu {% for fila in filas %}
-        'total_ventas': total_ventas_bs,
+        'filas': filas,
+        'gastos_extras': gastos_extras,
+        'tS': tS, 'tJ': tJ,
+        'total_ventas': total_ventas,
+        'total_gastos': total_gastos,
         'total_caja': total_caja_real,
         'diferencia': diferencia,
-    })
+    }
 
-    # 5. Generación del PDF
+    # 3. Renderizado y DESCARGA (attachment)
+    html_string = render_to_string('inventario/pdf_template.html', context)
     pdf = HTML(string=html_string).write_pdf()
+    
     response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="Reporte_{cierre.sucursal.nombre}.pdf"'
+    nombre_archivo = f"Reporte_{cierre.sucursal.nombre}_{cierre.fecha}.pdf"
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
+    
     return response

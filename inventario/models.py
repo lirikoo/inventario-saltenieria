@@ -29,7 +29,7 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
-# 3. REGISTRO DE INVENTARIO DIARIO (Para el PDF oficial)
+# 3. REGISTRO DE INVENTARIO DIARIO (Actualizado para el PDF)
 class RegistroDiario(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
@@ -38,15 +38,19 @@ class RegistroDiario(models.Model):
     entrada = models.IntegerField(default=0)
     baja = models.IntegerField(default=0)
     traspaso = models.IntegerField(default=0)
+    # NUEVO: Guarda el nombre completo de la sucursal destino
+    traspaso_destino = models.CharField(max_length=100, blank=True, null=True) 
     salida = models.IntegerField(default=0)
 
-# 4. CIERRE DE CAJA FINANCIERO
+# 4. CIERRE DE CAJA FINANCIERO (Actualizado para Personal)
 class CajaDiaria(models.Model):
     sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
     fecha = models.DateField(auto_now_add=True)
     efectivo = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     qr = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     tarjetero = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    # NUEVO: Guarda los nombres de los trabajadores seleccionados
+    personal_turno = models.CharField(max_length=255, blank=True, null=True) 
 
     def __str__(self):
         return f"Cierre {self.sucursal.nombre} - {self.fecha}"
@@ -56,14 +60,8 @@ class Gasto(models.Model):
     descripcion = models.CharField(max_length=200)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
 
-# 5. REGISTRO DE VENTAS MÓVILES (Para el resumen en el celular)
+# 5. REGISTRO DE VENTAS MÓVILES
 class VentaSalteña(models.Model):
-    OPCIONES_TRASPASO = [
-        ('Dest', 'Ninguno'),
-        ('Calacoto', 'Calacoto'),
-        ('Mendez', 'Méndez Arcos'),
-        ('San Pedro', 'San Pedro'),
-    ]
     producto = models.CharField(max_length=50)
     venta = models.IntegerField(default=0)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -72,7 +70,6 @@ class VentaSalteña(models.Model):
 
     @property
     def total_bs(self):
-        # $$Venta \times Precio = Total$$
         return self.venta * self.precio_unitario
 
 class GastoExtra(models.Model):
