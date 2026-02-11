@@ -10,23 +10,64 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root { --naranja: #FF8C00; --azul: #001f3f; --negro: #1a1a1a; }
-        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; padding-bottom: 80px; }
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; padding-bottom: 100px; }
         .navbar-cardelfi { background-color: var(--azul); border-bottom: 4px solid var(--naranja); padding: 10px 15px; }
-        .seccion-card { background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 25px; margin-bottom: 30px; }
-        .titulo-seccion h2 { display: inline-block; background: var(--azul); color: var(--naranja); padding: 10px 40px; border-radius: 50px; font-weight: 800; font-size: 1rem; text-transform: uppercase; }
-        .header-negro th { background-color: var(--negro); color: white; text-align: center; font-size: 0.7rem; padding: 10px; }
-        .input-planilla { width: 100%; height: 40px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center; font-weight: 700; }
-        .btn-accion { font-weight: 800; padding: 15px; border-radius: 50px; border: 3px solid var(--negro); display: flex; align-items: center; justify-content: center; gap: 8px; color: white; width: 100%; cursor: pointer; transition: 0.3s; }
-        .btn-guardar { background: #198754; } .btn-pdf { background: #dc3545; } .btn-salir { background: var(--azul); }
+        
+        /* BLOQUE DE TOTALES FLOTANTE */
+        .resumen-totales { background: var(--negro); color: white; border-radius: 15px; padding: 15px; margin-bottom: 20px; border-bottom: 4px solid var(--naranja); }
+        .total-item { text-align: center; }
+        .total-item span { display: block; font-size: 0.7rem; color: var(--naranja); text-transform: uppercase; font-weight: 800; }
+        .total-item h3 { margin: 0; font-weight: 800; font-size: 1.2rem; }
+
+        .seccion-card { background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 25px; }
+        .titulo-seccion h2 { display: inline-block; background: var(--azul); color: var(--naranja); padding: 8px 30px; border-radius: 50px; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; }
+
+        /* DISEÑO DE TARJETAS PARA CELULAR (Evita el efecto "pegado") */
+        @media (max-width: 768px) {
+            .tabla-escritorio { display: none; } /* Ocultamos la tabla en celular */
+            .card-producto-movil { border-bottom: 1px solid #eee; padding: 15px 0; }
+            .card-producto-movil:last-child { border-bottom: none; }
+            .grid-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+            .input-label { font-size: 0.6rem; font-weight: 800; color: #666; display: block; text-align: center; margin-bottom: 2px; }
+        }
+        @media (min-width: 769px) {
+            .vista-movil { display: none; } /* Ocultamos tarjetas en PC */
+        }
+
+        .input-planilla { width: 100%; height: 40px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center; font-weight: 700; font-size: 0.9rem; }
+        .input-planilla:focus { border-color: var(--naranja); outline: none; }
+        .btn-accion { font-weight: 800; padding: 15px; border-radius: 50px; border: 3px solid var(--negro); display: flex; align-items: center; justify-content: center; gap: 8px; color: white; width: 100%; transition: 0.3s; }
+        .btn-guardar { background: #198754; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-cardelfi sticky-top">
-    <div class="container-fluid"><span class="text-white fw-bold mx-auto">PLANILLA: {{ sucursal_activa.nombre|upper }}</span></div>
+<nav class="navbar navbar-cardelfi sticky-top shadow">
+    <div class="container-fluid d-flex justify-content-between">
+        <a href="{% url 'seleccion_sucursal' %}" class="text-white"><i class="bi bi-chevron-left"></i></a>
+        <span class="text-white fw-bold">PLANILLA: {{ sucursal_activa.nombre|upper }}</span>
+        <div style="width: 20px;"></div>
+    </div>
 </nav>
 
-<div class="container mt-4">
+<div class="container mt-3">
+    <div class="resumen-totales shadow">
+        <div class="row">
+            <div class="total-item col-4 border-end border-secondary">
+                <span>Unidades</span>
+                <h3 id="resumen-cant">0</h3>
+            </div>
+            <div class="total-item col-4 border-end border-secondary">
+                <span>Ingreso Bs</span>
+                <h3 id="resumen-ingreso">0.00</h3>
+            </div>
+            <div class="total-item col-4">
+                <span>Neto Bs</span>
+                <h3 id="resumen-neto" class="text-warning">0.00</h3>
+            </div>
+        </div>
+    </div>
+
     <form id="formPlanilla">
         {% csrf_token %}
         <input type="hidden" name="sucursal_id" value="{{ sucursal_activa.id }}">
@@ -34,16 +75,17 @@
         {% regroup productos by categoria as categoria_list %}
         {% for categoria in categoria_list %}
             <div class="seccion-card">
-                <div class="text-center mb-4"><div class="titulo-seccion"><h2>{{ categoria.grouper.nombre }}</h2></div></div>
-                <div class="table-responsive">
+                <div class="text-center mb-3"><div class="titulo-seccion"><h2>{{ categoria.grouper.nombre }}</h2></div></div>
+                
+                <div class="table-responsive tabla-escritorio">
                     <table class="table align-middle">
-                        <thead>
-                            <tr class="header-negro">
-                                <th style="width: 25%;">PRODUCTO</th>
+                        <thead class="header-negro">
+                            <tr>
+                                <th>PRODUCTO</th>
                                 {% if "SALTE" in categoria.grouper.nombre|upper %}
-                                    <th>PROD</th><th>ENT</th><th>BAJA</th><th style="width: 25%;">TRASPASO</th>
+                                    <th>PROD</th><th>ENT</th><th>BAJA</th><th>TRASPASO</th>
                                 {% endif %}
-                                <th>SALE</th><th>TOTAL Bs</th>
+                                <th>SALE</th><th>TOTAL</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,8 +98,8 @@
                                     <td><input type="number" name="b_{{p.id}}" class="input-planilla"></td>
                                     <td>
                                         <div class="d-flex gap-1">
-                                            <input type="number" name="t_cant_{{p.id}}" class="input-planilla" style="width: 50%" placeholder="#">
-                                            <select name="t_suc_{{p.id}}" class="form-select small">
+                                            <input type="number" name="t_cant_{{p.id}}" class="input-planilla w-50" placeholder="#">
+                                            <select name="t_suc_{{p.id}}" class="form-select form-select-sm">
                                                 <option value="">Dest</option>
                                                 <option value="CAL">CAL</option>
                                                 <option value="MEN">MEN</option>
@@ -73,72 +115,109 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div class="vista-movil">
+                    {% for p in categoria.list %}
+                    <div class="card-producto-movil fila-producto">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-800 text-uppercase" style="font-size: 0.85rem;">{{ p.nombre }}</span>
+                            <span class="badge bg-secondary">Bs {{ p.precio_unitario }}</span>
+                        </div>
+                        <div class="grid-inputs">
+                            {% if "SALTE" in categoria.grouper.nombre|upper %}
+                                <div><span class="input-label">PROD</span><input type="number" name="p_{{p.id}}" class="input-planilla"></div>
+                                <div><span class="input-label">ENT</span><input type="number" name="e_{{p.id}}" class="input-planilla"></div>
+                                <div><span class="input-label">TRAS</span><input type="number" name="t_cant_{{p.id}}" class="input-planilla" placeholder="#"></div>
+                            {% endif %}
+                            <div><span class="input-label">SALE</span><input type="number" name="s_{{p.id}}" class="input-planilla val-venta" data-precio="{{ p.precio_unitario }}" oninput="calcularTodo()"></div>
+                            <div style="grid-column: span 2;"><span class="input-label">SUBTOTAL BS</span><input type="text" class="input-planilla subtotal-prod border-0 bg-light" readonly value="0.00"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         {% endfor %}
 
-        <div class="seccion-card" style="border: 2px solid var(--naranja);">
-            <div class="text-center mb-4"><div class="titulo-seccion"><h2>REVISIÓN DE CAJA</h2></div></div>
-            <div class="row text-center mb-4">
-                <div class="col-12 p-3 rounded-4 border border-2 shadow-sm">
-                    <h1 id="diferencia-final" class="display-3 fw-800">0.00 Bs</h1>
-                    <p id="label-estado" class="fw-bold h4"></p>
+        <div class="seccion-card border border-danger">
+            <div class="text-center mb-3"><div class="titulo-seccion"><h2>Gastos Extras</h2></div></div>
+            <div id="contenedor-gastos">
+                <div class="row g-2 mb-2 fila-gasto">
+                    <div class="col-8"><input type="text" name="gasto_desc[]" class="input-planilla text-start px-2" placeholder="Descripción (ej: Pasajes)" oninput="calcularTodo()"></div>
+                    <div class="col-4"><input type="number" name="gasto_monto[]" class="input-planilla val-gasto" placeholder="Bs" oninput="calcularTodo()"></div>
                 </div>
             </div>
+            <button type="button" class="btn btn-sm btn-outline-danger w-100 mt-2" onclick="agregarGasto()">+ Agregar otro gasto</button>
+        </div>
+
+        <div class="seccion-card border border-primary">
+            <div class="text-center mb-3"><div class="titulo-seccion"><h2>Efectivo en Caja</h2></div></div>
             <div class="row g-2">
-                <div class="col-4"><label class="small fw-bold">EFECTIVO</label><input type="number" name="caja_efectivo" id="efectivo" class="input-planilla" oninput="calcularTodo()" value="0"></div>
-                <div class="col-4"><label class="small fw-bold">QR</label><input type="number" name="caja_qr" id="qr" class="input-planilla" oninput="calcularTodo()" value="0"></div>
-                <div class="col-4"><label class="small fw-bold">TARJETA</label><input type="number" name="caja_tarjeta" id="tarjetero" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+                <div class="col-4"><label class="input-label">EFECTIVO</label><input type="number" id="efectivo" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+                <div class="col-4"><label class="input-label">QR</label><input type="number" id="qr" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+                <div class="col-4"><label class="input-label">TARJETA</label><input type="number" id="tarjetero" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+            </div>
+            <div class="mt-4 p-3 rounded-4 bg-dark text-white text-center">
+                <span class="small opacity-75">DIFERENCIA FINAL</span>
+                <h2 id="diferencia-final" class="fw-800 mb-0">0.00 Bs</h2>
             </div>
         </div>
 
-        <div id="msj-exito" class="alert alert-success d-none text-center fw-bold shadow-sm mb-3" style="border-radius: 50px;">
-            <i class="bi bi-check-circle-fill"></i> ¡DATOS REGISTRADOS CORRECTAMENTE EN MYSQL!
-        </div>
-
-        <div class="row g-2">
-            <div class="col-4"><button type="button" onclick="guardarPlanilla()" class="btn-accion btn-guardar shadow"><i class="bi bi-save"></i> GUARDAR</button></div>
-            <div class="col-4"><button type="button" onclick="descargarPDF()" class="btn-accion btn-pdf shadow"><i class="bi bi-file-pdf"></i> PDF</button></div>
-            <div class="col-4"><a href="{% url 'seleccion_sucursal' %}" class="btn-accion btn-salir shadow"><i class="bi bi-door-open"></i> SALIR</a></div>
-        </div>
+        <button type="button" onclick="guardarPlanilla()" class="btn-accion btn-guardar shadow mb-4"><i class="bi bi-cloud-upload"></i> GUARDAR REPORTE DIARIO</button>
     </form>
 </div>
 
 <script>
-let lastCajaId = null;
+function agregarGasto() {
+    const div = document.createElement('div');
+    div.className = 'row g-2 mb-2 fila-gasto';
+    div.innerHTML = `
+        <div class="col-8"><input type="text" name="gasto_desc[]" class="input-planilla text-start px-2" placeholder="Descripción"></div>
+        <div class="col-4"><input type="number" name="gasto_monto[]" class="input-planilla val-gasto" placeholder="Bs" oninput="calcularTodo()"></div>
+    `;
+    document.getElementById('contenedor-gastos').appendChild(div);
+}
 
 function calcularTodo() {
-    let granTotal = 0;
-    document.querySelectorAll('.fila-producto').forEach(f => {
-        let v = f.querySelector('.val-venta');
-        let sub = (parseFloat(v.dataset.precio) * (parseInt(v.value) || 0));
-        f.querySelector('.subtotal-prod').value = sub.toFixed(2);
-        granTotal += sub;
-    });
-    let real = (parseFloat(document.getElementById('efectivo').value) || 0) + 
-               (parseFloat(document.getElementById('qr').value) || 0) + 
-               (parseFloat(document.getElementById('tarjetero').value) || 0);
-    let d = real - granTotal;
-    document.getElementById('diferencia-final').innerText = Math.abs(d).toFixed(2) + " Bs";
-    document.getElementById('diferencia-final').style.color = (Math.abs(d) < 0.1) ? "green" : (d > 0 ? "blue" : "red");
-}
+    let totalVentaUnidades = 0;
+    let totalDineroVenta = 0;
+    let totalGastos = 0;
 
-function guardarPlanilla() {
-    fetch("{% url 'guardar_registro' %}", {
-        method: "POST",
-        body: new FormData(document.getElementById('formPlanilla')),
-        headers: { "X-CSRFToken": "{{ csrf_token }}" }
-    })
-    .then(r => r.json()).then(data => {
-        if(data.status === 'success') {
-            lastCajaId = data.caja_id;
-            document.getElementById('msj-exito').classList.remove('d-none');
+    // Calcular Ventas por producto
+    document.querySelectorAll('.fila-producto').forEach(f => {
+        let inputVenta = f.querySelector('.val-venta');
+        if (inputVenta) {
+            let cant = parseInt(inputVenta.value) || 0;
+            let precio = parseFloat(inputVenta.dataset.precio) || 0;
+            let sub = cant * precio;
+            
+            // Sincronizar subtotal en la fila
+            f.querySelectorAll('.subtotal-prod').forEach(el => el.value = sub.toFixed(2));
+            
+            totalVentaUnidades += cant;
+            totalDineroVenta += sub;
         }
     });
-}
 
-function descargarPDF() {
-    if(!lastCajaId) { alert("⚠️ Primero debes darle a GUARDAR."); return; }
-    window.open("{% url 'descargar_pdf' %}?caja_id=" + lastCajaId, "_blank");
+    // Calcular Gastos
+    document.querySelectorAll('.val-gasto').forEach(g => {
+        totalGastos += parseFloat(g.value) || 0;
+    });
+
+    // Calcular Totales de Caja (Lo real)
+    let efectivoReal = (parseFloat(document.getElementById('efectivo').value) || 0) + 
+                       (parseFloat(document.getElementById('qr').value) || 0) + 
+                       (parseFloat(document.getElementById('tarjetero').value) || 0);
+
+    // Actualizar Bloque Superior
+    document.getElementById('resumen-cant').innerText = totalVentaUnidades;
+    document.getElementById('resumen-ingreso').innerText = totalDineroVenta.toFixed(2);
+    document.getElementById('resumen-neto').innerText = (totalDineroVenta - totalGastos).toFixed(2);
+
+    // Diferencia Final (Lo que falta o sobra)
+    let diferencia = efectivoReal - (totalDineroVenta - totalGastos);
+    const difEl = document.getElementById('diferencia-final');
+    difEl.innerText = diferencia.toFixed(2) + " Bs";
+    difEl.className = (Math.abs(diferencia) < 0.1) ? "text-success fw-800" : (diferencia > 0 ? "text-info fw-800" : "text-danger fw-800");
 }
 </script>
 </body>
