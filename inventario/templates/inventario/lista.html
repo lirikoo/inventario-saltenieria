@@ -8,36 +8,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --naranja: #FF8C00; --azul: #001f3f; --negro: #1a1a1a; }
-        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; padding-bottom: 100px; }
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; padding-bottom: 150px; }
         .navbar-cardelfi { background-color: var(--azul); border-bottom: 4px solid var(--naranja); padding: 10px 15px; }
-        
-        /* BLOQUE DE TOTALES FLOTANTE */
-        .resumen-totales { background: var(--negro); color: white; border-radius: 15px; padding: 15px; margin-bottom: 20px; border-bottom: 4px solid var(--naranja); }
-        .total-item { text-align: center; }
-        .total-item span { display: block; font-size: 0.7rem; color: var(--naranja); text-transform: uppercase; font-weight: 800; }
-        .total-item h3 { margin: 0; font-weight: 800; font-size: 1.2rem; }
-
         .seccion-card { background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 25px; }
         .titulo-seccion h2 { display: inline-block; background: var(--azul); color: var(--naranja); padding: 8px 30px; border-radius: 50px; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; }
+        
+        .table thead { background: var(--negro); color: white; }
+        .table th { font-size: 0.6rem; text-transform: uppercase; text-align: center; vertical-align: middle; }
+        .input-planilla { width: 100%; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-weight: 700; height: 35px; font-size: 0.85rem; }
 
-        /* DISEÑO DE TARJETAS PARA CELULAR (Evita el efecto "pegado") */
-        @media (max-width: 768px) {
-            .tabla-escritorio { display: none; } /* Ocultamos la tabla en celular */
-            .card-producto-movil { border-bottom: 1px solid #eee; padding: 15px 0; }
-            .card-producto-movil:last-child { border-bottom: none; }
-            .grid-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-            .input-label { font-size: 0.6rem; font-weight: 800; color: #666; display: block; text-align: center; margin-bottom: 2px; }
-        }
-        @media (min-width: 769px) {
-            .vista-movil { display: none; } /* Ocultamos tarjetas en PC */
-        }
-
-        .input-planilla { width: 100%; height: 40px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center; font-weight: 700; font-size: 0.9rem; }
-        .input-planilla:focus { border-color: var(--naranja); outline: none; }
-        .btn-accion { font-weight: 800; padding: 15px; border-radius: 50px; border: 3px solid var(--negro); display: flex; align-items: center; justify-content: center; gap: 8px; color: white; width: 100%; transition: 0.3s; }
-        .btn-guardar { background: #198754; }
+        /* BLOQUE DE TOTALES AL FINAL */
+        .resumen-footer { background: var(--negro); color: white; border-radius: 15px; padding: 20px; margin-top: 20px; border-bottom: 4px solid var(--naranja); }
+        .cat-total { color: var(--naranja); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; }
+        .total-valor { font-weight: 800; font-size: 1.1rem; }
+        
+        .btn-accion { font-weight: 800; padding: 15px; border-radius: 50px; border: 3px solid var(--negro); display: flex; align-items: center; justify-content: center; gap: 8px; color: white; width: 100%; text-decoration: none; }
+        .btn-guardar { background: #198754; } .btn-pdf { background: #dc3545; } .btn-salir { background: var(--azul); }
     </style>
 </head>
 <body>
@@ -50,24 +39,7 @@
     </div>
 </nav>
 
-<div class="container mt-3">
-    <div class="resumen-totales shadow">
-        <div class="row">
-            <div class="total-item col-4 border-end border-secondary">
-                <span>Unidades</span>
-                <h3 id="resumen-cant">0</h3>
-            </div>
-            <div class="total-item col-4 border-end border-secondary">
-                <span>Ingreso Bs</span>
-                <h3 id="resumen-ingreso">0.00</h3>
-            </div>
-            <div class="total-item col-4">
-                <span>Neto Bs</span>
-                <h3 id="resumen-neto" class="text-warning">0.00</h3>
-            </div>
-        </div>
-    </div>
-
+<div class="container mt-4">
     <form id="formPlanilla">
         {% csrf_token %}
         <input type="hidden" name="sucursal_id" value="{{ sucursal_activa.id }}">
@@ -76,148 +48,146 @@
         {% for categoria in categoria_list %}
             <div class="seccion-card">
                 <div class="text-center mb-3"><div class="titulo-seccion"><h2>{{ categoria.grouper.nombre }}</h2></div></div>
-                
-                <div class="table-responsive tabla-escritorio">
-                    <table class="table align-middle">
-                        <thead class="header-negro">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead>
                             <tr>
-                                <th>PRODUCTO</th>
+                                <th style="width: 30%;">PRODUCTO</th>
                                 {% if "SALTE" in categoria.grouper.nombre|upper %}
-                                    <th>PROD</th><th>ENT</th><th>BAJA</th><th>TRASPASO</th>
+                                    <th>PROD</th><th>ENT</th><th>BAJA</th><th>TR. CANT</th><th>TR. DEST</th>
                                 {% endif %}
-                                <th>SALE</th><th>TOTAL</th>
+                                <th style="width: 15%;">SALE</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for p in categoria.list %}
-                            <tr class="fila-producto">
+                            <tr class="fila-producto" data-categoria="{{ categoria.grouper.nombre|upper }}">
                                 <td class="fw-bold small">{{ p.nombre }}</td>
                                 {% if "SALTE" in categoria.grouper.nombre|upper %}
                                     <td><input type="number" name="p_{{p.id}}" class="input-planilla"></td>
                                     <td><input type="number" name="e_{{p.id}}" class="input-planilla"></td>
                                     <td><input type="number" name="b_{{p.id}}" class="input-planilla"></td>
+                                    <td><input type="number" name="t_cant_{{p.id}}" class="input-planilla" placeholder="#"></td>
                                     <td>
-                                        <div class="d-flex gap-1">
-                                            <input type="number" name="t_cant_{{p.id}}" class="input-planilla w-50" placeholder="#">
-                                            <select name="t_suc_{{p.id}}" class="form-select form-select-sm">
-                                                <option value="">Dest</option>
-                                                <option value="CAL">CAL</option>
-                                                <option value="MEN">MEN</option>
-                                                <option value="SAP">SAP</option>
-                                            </select>
-                                        </div>
+                                        <select name="t_suc_{{p.id}}" class="form-select form-select-sm fw-bold" style="font-size: 0.7rem; height: 35px;">
+                                            <option value="">Ninguno</option>
+                                            <option value="CAL">Calacoto</option>
+                                            <option value="MEN">Méndez Arcos</option>
+                                            <option value="SAP">San Pedro</option>
+                                        </select>
                                     </td>
                                 {% endif %}
                                 <td><input type="number" name="s_{{p.id}}" class="input-planilla val-venta" data-precio="{{ p.precio_unitario }}" oninput="calcularTodo()"></td>
-                                <td><input type="text" class="input-planilla subtotal-prod border-0 bg-light" readonly value="0.00"></td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-
-                <div class="vista-movil">
-                    {% for p in categoria.list %}
-                    <div class="card-producto-movil fila-producto">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-800 text-uppercase" style="font-size: 0.85rem;">{{ p.nombre }}</span>
-                            <span class="badge bg-secondary">Bs {{ p.precio_unitario }}</span>
-                        </div>
-                        <div class="grid-inputs">
-                            {% if "SALTE" in categoria.grouper.nombre|upper %}
-                                <div><span class="input-label">PROD</span><input type="number" name="p_{{p.id}}" class="input-planilla"></div>
-                                <div><span class="input-label">ENT</span><input type="number" name="e_{{p.id}}" class="input-planilla"></div>
-                                <div><span class="input-label">TRAS</span><input type="number" name="t_cant_{{p.id}}" class="input-planilla" placeholder="#"></div>
-                            {% endif %}
-                            <div><span class="input-label">SALE</span><input type="number" name="s_{{p.id}}" class="input-planilla val-venta" data-precio="{{ p.precio_unitario }}" oninput="calcularTodo()"></div>
-                            <div style="grid-column: span 2;"><span class="input-label">SUBTOTAL BS</span><input type="text" class="input-planilla subtotal-prod border-0 bg-light" readonly value="0.00"></div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
             </div>
         {% endfor %}
 
         <div class="seccion-card border border-danger">
-            <div class="text-center mb-3"><div class="titulo-seccion"><h2>Gastos Extras</h2></div></div>
+            <div class="text-center mb-2"><div class="titulo-seccion"><h2>Gastos Extras</h2></div></div>
             <div id="contenedor-gastos">
-                <div class="row g-2 mb-2 fila-gasto">
-                    <div class="col-8"><input type="text" name="gasto_desc[]" class="input-planilla text-start px-2" placeholder="Descripción (ej: Pasajes)" oninput="calcularTodo()"></div>
+                <div class="row g-2 mb-2">
+                    <div class="col-8"><input type="text" name="gasto_desc[]" class="input-planilla text-start px-2" placeholder="Concepto (ej: Pasajes)"></div>
                     <div class="col-4"><input type="number" name="gasto_monto[]" class="input-planilla val-gasto" placeholder="Bs" oninput="calcularTodo()"></div>
                 </div>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-danger w-100 mt-2" onclick="agregarGasto()">+ Agregar otro gasto</button>
+            <button type="button" class="btn btn-sm btn-outline-danger w-100 fw-bold" onclick="agregarGasto()">+ AGREGAR OTRO GASTO</button>
         </div>
 
         <div class="seccion-card border border-primary">
-            <div class="text-center mb-3"><div class="titulo-seccion"><h2>Efectivo en Caja</h2></div></div>
-            <div class="row g-2">
-                <div class="col-4"><label class="input-label">EFECTIVO</label><input type="number" id="efectivo" class="input-planilla" oninput="calcularTodo()" value="0"></div>
-                <div class="col-4"><label class="input-label">QR</label><input type="number" id="qr" class="input-planilla" oninput="calcularTodo()" value="0"></div>
-                <div class="col-4"><label class="input-label">TARJETA</label><input type="number" id="tarjetero" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+            <div class="text-center mb-2"><div class="titulo-seccion"><h2>Dinero en Caja</h2></div></div>
+            <div class="row g-2 text-center">
+                <div class="col-4"><label class="small fw-800 opacity-75">EFECTIVO</label><input type="number" id="efectivo" name="caja_efectivo" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+                <div class="col-4"><label class="small fw-800 opacity-75">QR</label><input type="number" id="qr" name="caja_qr" class="input-planilla" oninput="calcularTodo()" value="0"></div>
+                <div class="col-4"><label class="small fw-800 opacity-75">TARJETA</label><input type="number" id="tarjetero" name="caja_tarjeta" class="input-planilla" oninput="calcularTodo()" value="0"></div>
             </div>
-            <div class="mt-4 p-3 rounded-4 bg-dark text-white text-center">
-                <span class="small opacity-75">DIFERENCIA FINAL</span>
+        </div>
+
+        <div class="resumen-footer shadow">
+            <div class="row text-center mb-3">
+                <div class="col-6 mb-2"><span class="cat-total">Salteñas:</span><br><span id="tot-salte" class="total-valor">0</span></div>
+                <div class="col-6 mb-2"><span class="cat-total">Jugos:</span><br><span id="tot-jugo" class="total-valor">0</span></div>
+                <div class="col-6"><span class="cat-total">Bebidas:</span><br><span id="tot-bebi" class="total-valor">0</span></div>
+                <div class="col-6"><span class="cat-total">Calientes:</span><br><span id="tot-cali" class="total-valor">0</span></div>
+            </div>
+            <div class="text-center border-top border-secondary pt-3">
+                <span class="small opacity-75 fw-bold">DIFERENCIA FINAL</span>
                 <h2 id="diferencia-final" class="fw-800 mb-0">0.00 Bs</h2>
             </div>
         </div>
 
-        <button type="button" onclick="guardarPlanilla()" class="btn-accion btn-guardar shadow mb-4"><i class="bi bi-cloud-upload"></i> GUARDAR REPORTE DIARIO</button>
+        <div class="row g-2 mt-4">
+            <div class="col-6"><button type="button" onclick="guardarPlanilla()" class="btn-accion btn-guardar shadow"><i class="bi bi-cloud-upload"></i> GUARDAR</button></div>
+            <div class="col-6"><button type="button" onclick="descargarPDF()" class="btn-accion btn-pdf shadow"><i class="bi bi-file-pdf"></i> PDF</button></div>
+            <div class="col-12 mt-2"><a href="{% url 'seleccion_sucursal' %}" class="btn-accion btn-salir shadow"><i class="bi bi-door-open"></i> SALIR</a></div>
+        </div>
     </form>
 </div>
 
 <script>
+let lastCajaId = null;
+
+function calcularTodo() {
+    let tS = 0, tJ = 0, tB = 0, tC = 0, ingresoBruto = 0, gastosTotales = 0;
+
+    document.querySelectorAll('.fila-producto').forEach(f => {
+        let cat = f.dataset.categoria;
+        let cant = parseInt(f.querySelector('.val-venta').value) || 0;
+        let precio = parseFloat(f.querySelector('.val-venta').dataset.precio) || 0;
+        ingresoBruto += (cant * precio);
+
+        if (cat.includes('SALTE')) tS += cant;
+        else if (cat.includes('JUGO')) tJ += cant;
+        else if (cat.includes('CALIENTE')) tC += cant;
+        else if (cat.includes('BEBIDA')) tB += cant;
+    });
+
+    document.querySelectorAll('.val-gasto').forEach(g => gastosTotales += parseFloat(g.value) || 0);
+
+    document.getElementById('tot-salte').innerText = tS;
+    document.getElementById('tot-jugo').innerText = tJ;
+    document.getElementById('tot-bebi').innerText = tB;
+    document.getElementById('tot-cali').innerText = tC;
+
+    let cajaReal = (parseFloat(document.getElementById('efectivo').value) || 0) + 
+                   (parseFloat(document.getElementById('qr').value) || 0) + 
+                   (parseFloat(document.getElementById('tarjetero').value) || 0);
+
+    // $$Diferencia = Caja Real - (Ingreso Bruto - Gastos)$$
+    let diff = cajaReal - (ingresoBruto - gastosTotales);
+    const diffEl = document.getElementById('diferencia-final');
+    diffEl.innerText = diff.toFixed(2) + " Bs";
+    diffEl.style.color = (Math.abs(diff) < 0.1) ? "#28a745" : (diff > 0 ? "#17a2b8" : "#dc3545");
+}
+
 function agregarGasto() {
     const div = document.createElement('div');
-    div.className = 'row g-2 mb-2 fila-gasto';
-    div.innerHTML = `
-        <div class="col-8"><input type="text" name="gasto_desc[]" class="input-planilla text-start px-2" placeholder="Descripción"></div>
-        <div class="col-4"><input type="number" name="gasto_monto[]" class="input-planilla val-gasto" placeholder="Bs" oninput="calcularTodo()"></div>
-    `;
+    div.className = 'row g-2 mb-2';
+    div.innerHTML = `<div class="col-8"><input type="text" name="gasto_desc[]" class="input-planilla text-start px-2" placeholder="Descripción"></div>
+                     <div class="col-4"><input type="number" name="gasto_monto[]" class="input-planilla val-gasto" placeholder="Bs" oninput="calcularTodo()"></div>`;
     document.getElementById('contenedor-gastos').appendChild(div);
 }
 
-function calcularTodo() {
-    let totalVentaUnidades = 0;
-    let totalDineroVenta = 0;
-    let totalGastos = 0;
-
-    // Calcular Ventas por producto
-    document.querySelectorAll('.fila-producto').forEach(f => {
-        let inputVenta = f.querySelector('.val-venta');
-        if (inputVenta) {
-            let cant = parseInt(inputVenta.value) || 0;
-            let precio = parseFloat(inputVenta.dataset.precio) || 0;
-            let sub = cant * precio;
-            
-            // Sincronizar subtotal en la fila
-            f.querySelectorAll('.subtotal-prod').forEach(el => el.value = sub.toFixed(2));
-            
-            totalVentaUnidades += cant;
-            totalDineroVenta += sub;
+function guardarPlanilla() {
+    fetch("{% url 'guardar_registro' %}", {
+        method: "POST",
+        body: new FormData(document.getElementById('formPlanilla')),
+        headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    })
+    .then(r => r.json()).then(data => {
+        if(data.status === 'success') {
+            lastCajaId = data.caja_id;
+            Swal.fire({ title: '¡Guardado!', text: 'Planilla de Cardelfi registrada.', icon: 'success', confirmButtonColor: '#FF8C00' });
         }
     });
+}
 
-    // Calcular Gastos
-    document.querySelectorAll('.val-gasto').forEach(g => {
-        totalGastos += parseFloat(g.value) || 0;
-    });
-
-    // Calcular Totales de Caja (Lo real)
-    let efectivoReal = (parseFloat(document.getElementById('efectivo').value) || 0) + 
-                       (parseFloat(document.getElementById('qr').value) || 0) + 
-                       (parseFloat(document.getElementById('tarjetero').value) || 0);
-
-    // Actualizar Bloque Superior
-    document.getElementById('resumen-cant').innerText = totalVentaUnidades;
-    document.getElementById('resumen-ingreso').innerText = totalDineroVenta.toFixed(2);
-    document.getElementById('resumen-neto').innerText = (totalDineroVenta - totalGastos).toFixed(2);
-
-    // Diferencia Final (Lo que falta o sobra)
-    let diferencia = efectivoReal - (totalDineroVenta - totalGastos);
-    const difEl = document.getElementById('diferencia-final');
-    difEl.innerText = diferencia.toFixed(2) + " Bs";
-    difEl.className = (Math.abs(diferencia) < 0.1) ? "text-success fw-800" : (diferencia > 0 ? "text-info fw-800" : "text-danger fw-800");
+function descargarPDF() {
+    if(!lastCajaId) { Swal.fire('Atención', 'Guarda primero para generar el PDF.', 'warning'); return; }
+    window.open("{% url 'generar_pdf_estilo_cuaderno' %}?caja_id=" + lastCajaId, "_blank");
 }
 </script>
 </body>
